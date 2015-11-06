@@ -1,0 +1,11 @@
+2015-11-06 Tuna <tuna@cern.ch>
+        * Stablized geometry derivation
+        * Tagging MuonRawHits-00-00-02
+
+2015-11-02 Tuna <tuna@cern.ch>
+        * Added CSCs, make hit navigation more like ESDs (chamber-oriented)
+        * Tagging MuonRawHits-00-00-01
+
+2015-10-17 Tuna <tuna@cern.ch>
+        * MDTs are stable for ntuples, histograms, and plots
+        * Tagging MuonRawHits-00-00-00
