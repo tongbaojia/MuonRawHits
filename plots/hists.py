@@ -143,11 +143,6 @@ def ntuple_to_histogram(config):
         for region in hists:
             hits[region] = 0
 
-        if tree.RunNumber == 281385 and tree.lbn < 188:
-            continue
-        if tree.RunNumber == 280673 and (tree.lbn > 1200 or tree.lbn < 131):
-            continue
-
         # mdt hits
         for ich in xrange(tree.mdt_chamber_n):
 
