@@ -4,7 +4,7 @@
 # $ athena.py input/${run}.py muonrawhits.py 
 #
 
-theApp.EvtMax = 5
+# theApp.EvtMax = 5
 svcMgr += CfgMgr.AthenaEventLoopMgr(EventPrintoutInterval=100)
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags

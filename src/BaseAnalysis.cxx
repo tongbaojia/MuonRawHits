@@ -32,18 +32,23 @@
 #include "MuonPrepRawData/CscPrepDataContainer.h"
 #include "MuonPrepRawData/CscPrepData.h"
 
+#include "CscClusterization/ICscClusterFitter.h"
+#include "CscClusterization/ICscClusterUtilTool.h"
+
 #include "TrigDecisionTool/ChainGroup.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
 BaseAnalysis::BaseAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) : 
     AthHistogramAlgorithm(name, pSvcLocator),
     m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
+    m_clusterUtilTool("CscClusterUtilTool/CscClusterUtilTool"),
     m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_lumiTool("LuminosityTool")
 {
-    declareProperty("MuonEDMHelperTool",   m_helperTool);
-    declareProperty("TrigDecisionTool",    m_trigDecTool);
-    declareProperty("LuminosityTool",      m_lumiTool);
+    declareProperty("MuonEDMHelperTool",  m_helperTool);
+    declareProperty("CscClusterUtilTool", m_clusterUtilTool);
+    declareProperty("TrigDecisionTool",   m_trigDecTool);
+    declareProperty("LuminosityTool",     m_lumiTool);
 }
 
 BaseAnalysis::~BaseAnalysis() {}
@@ -64,6 +69,7 @@ StatusCode BaseAnalysis::initialize() {
     CHECK(histSvc.retrieve());
     CHECK(m_lumiTool.retrieve());
     CHECK(m_trigDecTool.retrieve());
+    CHECK(m_clusterUtilTool.retrieve());
 
     tree = new TTree("physics", "physics");
     CHECK(histSvc->regTree("/ANOTHERSTREAM/tree", tree));
@@ -86,7 +92,7 @@ StatusCode BaseAnalysis::execute() {
     CHECK(fill_csc());
 
     // CHECK(dump_mdt_geometry());
-    CHECK(dump_csc_geometry());
+    // CHECK(dump_csc_geometry());
 
     tree->Fill();
 
@@ -133,7 +139,9 @@ StatusCode BaseAnalysis::initialize_branches() {
     tree->Branch("csc_chamber_phi_sector",     &csc_chamber_phi_sector);
     tree->Branch("csc_chamber_cluster_n",      &csc_chamber_cluster_n);
     tree->Branch("csc_chamber_cluster_r",      &csc_chamber_cluster_r);
-    tree->Branch("csc_chamber_cluster_charge", &csc_chamber_cluster_charge);
+    tree->Branch("csc_chamber_cluster_rmax",   &csc_chamber_cluster_rmax);
+    tree->Branch("csc_chamber_cluster_qsum",   &csc_chamber_cluster_qsum);
+    tree->Branch("csc_chamber_cluster_qmax",   &csc_chamber_cluster_qmax);
     tree->Branch("csc_chamber_cluster_strips", &csc_chamber_cluster_strips);
 
     return StatusCode::SUCCESS;
@@ -302,7 +310,9 @@ StatusCode BaseAnalysis::clear_branches() {
 
     csc_chamber_cluster_n.clear();
     csc_chamber_cluster_r.clear();
-    csc_chamber_cluster_charge.clear();
+    csc_chamber_cluster_rmax.clear();
+    csc_chamber_cluster_qsum.clear();
+    csc_chamber_cluster_qmax.clear();
     csc_chamber_cluster_strips.clear();
     csc_chamber_cluster_measuresphi.clear();
 
@@ -476,7 +486,9 @@ StatusCode BaseAnalysis::dump_csc_geometry() {
 
         for (layer = layer_min; layer <= layer_max; layer++){
 
-            if (ignore_csc_layer(OfflineToOnlineSide(chamber_eta), OfflineToOnlinePhi(chamber_type, chamber_phi), layer)) continue;
+            if (ignore_csc_layer(OfflineToOnlineSide(chamber_eta), 
+                                 OfflineToOnlinePhi(chamber_type, chamber_phi), 
+                                 layer)) continue;
 
             for (strip = strip_min; strip <= strip_max; strip++){
  
@@ -583,9 +595,15 @@ StatusCode BaseAnalysis::fill_csc() {
     double ch_z = 0;
 
     int measures_phi = 0;
+    int qmax         = 0;
+    int rmax         = 0;
+
+    Identifier qmaxid;
+
+    ICscClusterFitter::StripFitList stripfits;
+    std::vector<Identifier>         stripids;
 
     const Muon::CscPrepDataContainer* cscs(0);
-    // CHECK(evtStore()->retrieve(cscs, "CSC_Measurements"));
     CHECK(evtStore()->retrieve(cscs, "CSC_Clusters"));
 
     Muon::CscPrepDataContainer::const_iterator chamber;
@@ -597,8 +615,8 @@ StatusCode BaseAnalysis::fill_csc() {
 
             const MuonGM::CscReadoutElement* readout = (*cluster)->detectorElement();
                 
-            const Amg::Vector3D&    global_position  =  (*cluster)->globalPosition();
-            const Amg::Vector3D& ch_global_position  = readout->globalPosition();
+            const Amg::Vector3D&    global_position = (*cluster)->globalPosition();
+            const Amg::Vector3D& ch_global_position = readout->globalPosition();
 
             const Muon::CscPrepData& prd = **cluster;
             Identifier clusterid = prd.identify();
@@ -624,7 +642,9 @@ StatusCode BaseAnalysis::fill_csc() {
 
                 csc_chamber_cluster_n.push_back(0);
                 csc_chamber_cluster_r.push_back(     std::vector<int>());
-                csc_chamber_cluster_charge.push_back(std::vector<int>());
+                csc_chamber_cluster_rmax.push_back(  std::vector<int>());
+                csc_chamber_cluster_qsum.push_back(  std::vector<int>());
+                csc_chamber_cluster_qmax.push_back(  std::vector<int>());
                 csc_chamber_cluster_strips.push_back(std::vector<int>());
 
                 first = 0;
@@ -634,36 +654,45 @@ StatusCode BaseAnalysis::fill_csc() {
                                  csc_chamber_phi_sector.back(), 
                                  m_cscIdHelper->wireLayer(clusterid))) continue;
 
+            measures_phi = m_cscIdHelper->measuresPhi(clusterid);
+            if (measures_phi) continue;
+
             cluster_x = global_position.x();
             cluster_y = global_position.y();
             
-            measures_phi = m_cscIdHelper->measuresPhi(clusterid);
+            csc_chamber_cluster_n.back()++;
+            csc_chamber_cluster_r.back().push_back((int)(r(cluster_x, cluster_y)));
+            csc_chamber_cluster_qsum.back().push_back((*cluster)->charge());
+            csc_chamber_cluster_strips.back().push_back((*cluster)->rdoList().size());
 
-            if (!measures_phi){
-                csc_chamber_cluster_n.back()++;
-                csc_chamber_cluster_r.back().push_back((int)(r(cluster_x, cluster_y)));
-                csc_chamber_cluster_charge.back().push_back((*cluster)->charge());
-                csc_chamber_cluster_strips.back().push_back((*cluster)->rdoList().size());
+            // below: retrieving the highest-charge strip (qmax)
+            stripfits.clear();
+            m_clusterUtilTool->getStripFits((*cluster), stripfits);
+
+            stripids.clear();
+            stripids = (*cluster)->rdoList();
+
+            if (stripids.size() != stripfits.size()) 
+                ATH_MSG_FATAL("Number of strip ids is not equal to number of strip fits!");
+
+            qmax = 0;
+            for (unsigned int iter = 0; iter < stripfits.size(); ++iter){
+                if (stripfits[iter].charge > qmax){
+                    // if only C++ had a zip function
+                    qmax = (int)(stripfits[iter].charge);
+                    qmaxid = stripids[iter];
+                }
             }
 
-            // printf ("%6i %5s %3i %5i | %5s %6i %7i | %11.2f %11.2f \n",
-            //         csc_chamber_n - 1,
-            //         readout->getStationType().c_str(),
-            //         readout->getStationPhi(),
-            //         (*chamber)->size(),
+            if (qmax == 0) 
+                ATH_MSG_FATAL("Max strip charge is zero!");
 
-            //         (measures_phi ? "phi" : "eta"),
-            //         m_cscIdHelper->wireLayer(clusterid),
-            //         m_cscIdHelper->channel(clusterid),
+            const Amg::Vector3D& qmax_position = readout->stripPos(qmaxid);
+            rmax = (int)(r(qmax_position.x(), qmax_position.y()));
 
-            //         readout->StripWidth(measures_phi),
-            //         readout->stripLength(clusterid));
+            csc_chamber_cluster_qmax.back().push_back(qmax);
+            csc_chamber_cluster_rmax.back().push_back(rmax);
 
-            if (false){
-                std::cout << " CSC chamber " << csc_chamber_n - 1
-                          << " clusters: "   << (*chamber)->size() 
-                          << std::endl;
-            }
         }
     }
 

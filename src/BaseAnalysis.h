@@ -29,6 +29,8 @@ class CscIdHelper;
 class RpcIdHelper;
 class TgcIdHelper;
 
+class ICscClusterUtilTool;
+
 namespace Muon {
     class MuonEDMHelperTool;
 }
@@ -82,6 +84,7 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
   void debug_luminosity();
 
   ToolHandle< Muon::MuonEDMHelperTool > m_helperTool; 
+  ToolHandle< ICscClusterUtilTool >     m_clusterUtilTool;
   ToolHandle< Trig::TrigDecisionTool >  m_trigDecTool;
   ToolHandle< ILuminosityTool >         m_lumiTool;
 
@@ -118,8 +121,6 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
   std::vector<double>      mdt_chamber_r; //!
   std::vector<double>      mdt_chamber_phi; //!
   std::vector<double>      mdt_chamber_eta; //!
-  std::vector<int>         mdt_chamber_tubes; //!
-  std::vector<int>         mdt_chamber_tubes_adc80; //!
   std::vector<std::string> mdt_chamber_name; //!
 
   std::vector<std::string> mdt_chamber_type; //!
@@ -144,7 +145,9 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
   
   std::vector<int>              csc_chamber_cluster_n; //!
   std::vector<std::vector<int>> csc_chamber_cluster_r; //!
-  std::vector<std::vector<int>> csc_chamber_cluster_charge; //!
+  std::vector<std::vector<int>> csc_chamber_cluster_rmax; //!
+  std::vector<std::vector<int>> csc_chamber_cluster_qsum; //!
+  std::vector<std::vector<int>> csc_chamber_cluster_qmax; //!
   std::vector<std::vector<int>> csc_chamber_cluster_strips; //!
   std::vector<std::vector<int>> csc_chamber_cluster_measuresphi; //!
 
