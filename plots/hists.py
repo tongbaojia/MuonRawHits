@@ -102,35 +102,6 @@ def ntuple_to_histogram(config):
     hits    = {}
     entries = min(config["max"], tree.GetEntries()) or tree.GetEntries()
 
-    mdt_chambers, mdt_radii, mdt_areas, mdt_timings = geometry_mdt_tubes_EI()
-    csc_chambers, csc_radii, csc_areas, csc_timings = geometry_csc_strips()
-
-    # mdt geometry
-    for chamber, radius, area, timing in zip(mdt_chambers, mdt_radii, mdt_areas, mdt_timings):
-        if   "EIL1" in chamber or "EIL2" in chamber: region = "endcap_L"
-        elif "EIS1" in chamber or "EIS2" in chamber: region = "endcap_S"
-        else:
-            continue
-        hists[region+"_area"].Fill(radius, area * float(entries))
-        hists[region+"_tube"].Fill(radius, 1.0  * float(entries))
-        hists[region+"_time"].SetBinContent(hists[region+"_time"].FindBin(radius), timing * float(entries))
-
-    # csc geometry
-    for chamber, radius, area, timing in zip(csc_chambers, csc_radii, csc_areas, csc_timings):
-        if   "CSL" in chamber: region = "endcap_L"
-        elif "CSS" in chamber: region = "endcap_S"
-        else:
-            continue
-        hists[region+"_area"].Fill(radius, area * float(entries))
-        hists[region+"_tube"].Fill(radius, 1.0  * float(entries))
-        hists[region+"_time"].SetBinContent(hists[region+"_time"].FindBin(radius), timing * float(entries))
-
-    # turn off uncertainties on geometry
-    for hist in hists:
-        if "_area" in hist or "_time" in hist or "_tube" in hist:
-            for bin in xrange(0, hists[hist].GetNbinsX()):
-                hists[hist].SetBinError(bin, 0.0)
-
     # hits
     start_time = time.time()
     for entry in xrange(entries):
@@ -139,6 +110,7 @@ def ntuple_to_histogram(config):
             progress(time.time() - start_time, entry, entries)
 
         tree.GetEntry(entry)
+        hists["entries"].Fill(1)
 
         for region in hists:
             hits[region] = 0
@@ -188,7 +160,7 @@ def ntuple_to_histogram(config):
 
         for region in hists:
 
-            if "bunch" in region or "endcap" in region:
+            if "bunch" in region or "endcap" in region or "entries" in region:
                 continue
             
             hists[region].Fill(lumi, hits[region], prescale)
@@ -200,6 +172,8 @@ def ntuple_to_histogram(config):
 def initialize_histograms(run, job):
 
     hists = {}
+
+    hists["entries"] = ROOT.TH1F("entries_%s_job%s" % (run, job), "entries", 1, 0, 2)
 
     name = "mdt_all_vs_lumi_orbit_%s_job%s" % (run, job)
     xaxis = "< inst. lumi. per fill > [e^{33}_cm^{-2}_s^{-1}_]".replace("_", "#scale[0.5]{ }")
@@ -230,14 +204,14 @@ def initialize_histograms(run, job):
     hists["csc_L_bunch"]   = ROOT.TH2F(name_csc.replace("all", "L"), ";%s;%s;%s" % (xaxis, yaxis.replace("MDT", "CSC"), zaxis), 180, 1.0, 4.0, 200, 0, 100)
     hists["csc_S_bunch"]   = ROOT.TH2F(name_csc.replace("all", "S"), ";%s;%s;%s" % (xaxis, yaxis.replace("MDT", "CSC"), zaxis), 180, 1.0, 4.0, 200, 0, 100)
 
-    for quantity in ["hits", "area", "time", "tube"]:
+    for quantity in ["hits"]:
         for sector in ["S", "L"]:
 
             name = "endcap_%s_%s_%s_job%s" % (sector, quantity, run, job)
             xaxis = "radius [mm]"
             yaxis = "%s sectors: %s %s" % (sector, quantity, unit(quantity))
             hists["endcap_%s_%s" % (sector, quantity)] = ROOT.TH1F(name, ";%s;%s;" % (xaxis, yaxis), 500, 0, endcap_xaxis_max(name))
-        
+
     for hist in hists:
         hists[hist].Sumw2()
         ROOT.SetOwnership(hists[hist], False)
@@ -248,56 +222,6 @@ def endcap_xaxis_max(histname):
     if "_L_" in histname: return 5200
     if "_S_" in histname: return 5440
     fatal("Bad histname for endcap_xaxis_max: %s" % (histname))
-
-def geometry_mdt_tubes_EI():
-
-    livetime    = 1300e-9
-    mm2_to_m2   = (1/1000.0)*(1/1000.0)
-    muonrawhits = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    geometry    = os.path.join(muonrawhits, "data/geometry/mdt_tubes_EI.txt")
-
-    chambers = []
-    radii    = []
-    areas    = []
-    times    = []
-
-    for line in open(geometry).readlines():
-        line = line.strip()
-        if not line:
-            continue
-        _, chamber, ml, layer, tube, r, radius, length, area = line.split()
-
-        chambers.append(chamber)
-        radii.append(float(r))
-        areas.append(float(area)*mm2_to_m2)
-        times.append(float(livetime))
-
-    return chambers, radii, areas, times
-
-def geometry_csc_strips():
-
-    livetime    = 140e-9
-    mm2_to_m2   = (1/1000.0)*(1/1000.0)
-    muonrawhits = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    geometry    = os.path.join(muonrawhits, "data/geometry/csc_strips.txt")
-
-    chambers = []
-    radii    = []
-    areas    = []
-    times    = []
-
-    for line in open(geometry).readlines():
-        line = line.strip()
-        if not line:
-            continue
-        _, chamber, layer, strip, r, length, width, area = line.split()
-
-        chambers.append(chamber)
-        radii.append(float(r))
-        areas.append(float(area)*mm2_to_m2)
-        times.append(float(livetime))
-
-    return chambers, radii, areas, times
 
 def hadd(output, inputs, delete=False):
     command = ["hadd", output] + inputs
