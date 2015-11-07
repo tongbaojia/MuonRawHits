@@ -4,7 +4,7 @@
 # $ athena.py input/${run}.py muonrawhits.py 
 #
 
-# theApp.EvtMax = 5
+theApp.EvtMax = 5
 svcMgr += CfgMgr.AthenaEventLoopMgr(EventPrintoutInterval=100)
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -45,4 +45,8 @@ cfg = TriggerConfigGetter('ReadPool')
 from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
 tdt = Trig__TrigDecisionTool("TrigDecisionTool")
 ToolSvc += tdt
+
+from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone
+CalibCscStripFitter = getPublicTool("CalibCscStripFitter")
+ToolSvc += CalibCscStripFitter
 
