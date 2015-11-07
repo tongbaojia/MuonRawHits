@@ -112,6 +112,10 @@ def ntuple_to_histogram(config):
         tree.GetEntry(entry)
         hists["entries"].Fill(1)
 
+        lumi     = tree.lbAverageLuminosity/1000
+        prescale = tree.prescale_HLT
+        bcid     = tree.bcid
+
         for region in hists:
             hits[region] = 0
 
@@ -139,6 +143,8 @@ def ntuple_to_histogram(config):
 
                 for tube in xrange(nhits):
                     hists[region].Fill(tree.mdt_chamber_tube_r[ich][tube], 1)
+
+            hists["mdt_all_bcid"].Fill(bcid, nhits)
                     
         for ich in xrange(tree.csc_chamber_n):
 
@@ -155,12 +161,11 @@ def ntuple_to_histogram(config):
             for clus in xrange(nhits):
                 hists[region].Fill(tree.csc_chamber_cluster_r[ich][clus], 1)
             
-        lumi     = tree.lbAverageLuminosity/1000
-        prescale = tree.prescale_HLT
-
+            hists["csc_all_bcid"].Fill(bcid, nhits)
+                    
         for region in hists:
 
-            if "bunch" in region or "endcap" in region or "entries" in region:
+            if "bunch" in region or "endcap" in region or "entries" in region or "bcid" in region:
                 continue
             
             hists[region].Fill(lumi, hits[region], prescale)
@@ -211,6 +216,9 @@ def initialize_histograms(run, job):
             xaxis = "radius [mm]"
             yaxis = "%s sectors: %s %s" % (sector, quantity, unit(quantity))
             hists["endcap_%s_%s" % (sector, quantity)] = ROOT.TH1F(name, ";%s;%s;" % (xaxis, yaxis), 500, 0, endcap_xaxis_max(name))
+
+    hists["mdt_all_bcid"] = ROOT.TH1F("mdt_all_vs_bcid_%s_job%s" % (run, job), ";%s;%s" % ("BCID", "hits in MDT"), 360, 0, 3600)
+    hists["csc_all_bcid"] = ROOT.TH1F("csc_all_vs_bcid_%s_job%s" % (run, job), ";%s;%s" % ("BCID", "hits in CSC"), 360, 0, 3600)
 
     for hist in hists:
         hists[hist].Sumw2()
