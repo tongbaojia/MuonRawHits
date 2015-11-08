@@ -1,32 +1,43 @@
 here=$(pwd)
-pkg=/n/home05/tuna/_sami/MuonRawHits
+pkg=$(dirname ${here})
 work=/n/atlasfs/atlasdata/tuna/MuonRawHits/batch-$(date "+%Y-%m-%d-%Hh%Mm%Ss")
+
+if [ "$(basename ${pkg})" != "MuonRawHits" ]; then
+    echo
+    echo "FATAL: Package directory is not MuonRawHits."
+    echo "       Please run from MuonRawHits/scripts/"
+    echo
+    return
+fi
 
 echo
 echo "output directory: ${work}"
 echo
 
-for run in 00280862 00281143 00281381 00281411 00282992 00283429 00283780 00284213; do
+for run in 00278880 00279169 00279345 00279685 00280231 00280464 00280673 00280862 00281143 00281411 00282992 00283429 00283780 00284213 00284285; do
 
-    job=${work}/${run}/job-${run}.sh
-    jobdir=$(dirname ${job})
+    for split in firsthalf secondhalf; do
 
-    mkdir -p ${jobdir}
-    cd       ${jobdir}
-    touch    ${job}
-    
-    echo "#!/bin/bash"                  >> ${job}
-    echo "#"                            >> ${job}
-    echo "#SBATCH -p pleiades"          >> ${job}
-    echo "#SBATCH -t 1-0:0:0"           >> ${job}
-    echo "#SBATCH --mem-per-cpu 10000"  >> ${job}
-    echo "#SBATCH --workdir ${jobdir}"  >> ${job}
-    echo "#"                            >> ${job}
+        job=${work}/${run}/${split}/job-${run}.sh
+        jobdir=$(dirname ${job})
 
-    echo athena.py ${pkg}/run/input/${run}.py ${pkg}/run/muonrawhits.py >> ${job}
+        mkdir -p ${jobdir}
+        cd       ${jobdir}
+        touch    ${job}
+        
+        echo "#!/bin/bash"                  >> ${job}
+        echo "#"                            >> ${job}
+        echo "#SBATCH -p pleiades"          >> ${job}
+        echo "#SBATCH -t 1-0:0:0"           >> ${job}
+        echo "#SBATCH --mem-per-cpu 20000"  >> ${job}
+        echo "#SBATCH --workdir ${jobdir}"  >> ${job}
+        echo "#"                            >> ${job}
+        
+        echo athena.py ${pkg}/run/input/${run}.py ${pkg}/run/input/${split}.py ${pkg}/run/muonrawhits.py >> ${job}
+        
+        sbatch ${job} | tee ${jobdir}/sbatch.txt
 
-    sbatch ${job} | tee ${jobdir}/sbatch.txt
-
+    done
 done
 
 cd ${here}

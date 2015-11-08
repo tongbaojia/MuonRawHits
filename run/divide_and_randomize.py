@@ -5,6 +5,7 @@ Shoutout to the godkunkle for originally writing this.
 """
 
 import argparse
+import glob
 import sys
 import os
 import random
@@ -31,16 +32,18 @@ def main():
 
     # configure input
     inputs = options.input.split(",")
-    print "Will split %s input files into %s output files" %(len(inputs), chunks)
-
     chain = ROOT.TChain(treename)
     for inp in inputs:
-        chain.Add(inp)
+        if "*" in inp:
+            _ = [chain.Add(inpglob) for inpglob in glob.glob(inp)]
+        else:
+            chain.Add(inp)
     entries = chain.GetEntries()
     if not entries:
         fatal("no entries in the input tree")
     else:
-        print " input entries for %s :: %s" % (chain.GetName(), entries)
+        print " split %s input files into %s output files" % (len(chain.GetListOfFiles()), chunks)
+        print " input entries for %s :: %s"                % (chain.GetName(), entries)
 
     # configure output
     if os.path.isdir(options.output): 

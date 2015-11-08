@@ -15,7 +15,7 @@
     # or
     
     for run in $(ls -1 ${batch_dir}); do
-        python divide_and_randomize.py --input=${batch_dir}/${run}/ntuple*.root --output=${divide_dir}/${run}/ --chunks=20
+        python divide_and_randomize.py --input=${batch_dir}/${run}/*/ntuple*.root --output=${divide_dir}/${run}/ --chunks=20
     done
 
 ### make histograms (may move this to C++) in plots/
