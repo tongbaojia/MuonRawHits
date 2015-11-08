@@ -1,9 +1,19 @@
 here=$(pwd)
+pkg=$(dirname ${here})
 
-tag=2015-11-04-04h33m50s
+tag=2015-11-08-09h00m45s
+
 ntups=/n/atlasfs/atlasdata/tuna/MuonRawHits/ntuples-${tag}
-work=/n/home05/tuna/_sami/MuonRawHits/scripts/hists-${tag}
-script=/n/home05/tuna/_sami/MuonRawHits/plots/hists.py
+work=${pkg}/scripts/hists-${tag}
+script=${pkg}/plots/hists.py
+
+if [ "$(basename ${pkg})" != "MuonRawHits" ]; then
+    echo
+    echo "FATAL: Package directory is not MuonRawHits."
+    echo "       Please run from MuonRawHits/scripts/"
+    echo
+    return
+fi
 
 echo
 echo "output directory: ${work}"
@@ -24,7 +34,7 @@ for run in $(ls ${ntups}); do
         echo "#"                            >> ${job}
         echo "#SBATCH -p pleiades"          >> ${job}
         echo "#SBATCH -t 1-0:0:0"           >> ${job}
-        echo "#SBATCH --mem-per-cpu 10000"  >> ${job}
+        echo "#SBATCH --mem-per-cpu 2048"   >> ${job}
         echo "#SBATCH --workdir ${jobdir}"  >> ${job}
         echo "#"                            >> ${job}
         

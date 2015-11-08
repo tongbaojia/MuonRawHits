@@ -97,7 +97,6 @@ def ntuple_to_histogram(config):
         tree.Add(fi)
 
     run     = run_number(tree)
-    bunches = colliding_bunches(tree)
     hists   = initialize_histograms(run, job)
     hits    = {}
     entries = min(config["max"], tree.GetEntries()) or tree.GetEntries()
@@ -112,9 +111,10 @@ def ntuple_to_histogram(config):
         tree.GetEntry(entry)
         hists["entries"].Fill(1)
 
-        lumi     = tree.lbAverageLuminosity/1000
+        lumi     = tree.lbAverageLuminosity/1000.0
         prescale = tree.prescale_HLT
         bcid     = tree.bcid
+        bunches  = tree.colliding_bunches
 
         for region in hists:
             hits[region] = 0
@@ -246,7 +246,7 @@ def progress(time_diff, nprocessed, ntotal):
     sys.stdout.flush()
 
 def unit(quantity):
-    if quantity == "area": return "[ m^{2} ]"
+    if quantity == "area": return "[ cm^{2} ]"
     if quantity == "time": return "[ s ]"
     return ""
 
