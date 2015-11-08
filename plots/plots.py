@@ -34,22 +34,25 @@ def main():
         # 279685,
         # 280464,
         # 280673,
-        280862,
+        # 280862,
         # 281074,
-        281143,
+        # 281143,
         # 281381,
         # 281385,
-        281411,
-        282992,
-        283429,
-        283780,
+        # 281411,
+        # 282992,
+        # 283429,
+        # 283780,
         284213,
+        284285,
         ]
     
-    for perbc in [True, False]:
-        plots(runs, perbc)
+#    for perbc in [True, False]:
+#        plots_vs_lumi(runs, perbc)
 
-def plots(runs, perbc):
+    plots_vs_r(runs)
+
+def plots_vs_lumi(runs, perbc):
 
     graphical = True
 
@@ -219,69 +222,102 @@ def plots(runs, perbc):
         ROOT.gPad.RedrawAxis()
         canvas.SaveAs(os.path.join(ops.output, canvas.GetName()+".pdf"))
 
+
+def plots_vs_r(runs):
+
+    ops = options()
+    if not ops.output:
+        ops.output = "output"
+    if not os.path.isdir(ops.output): 
+        os.makedirs(ops.output)
+    
+    ROOT.gStyle.SetPadRightMargin(0.06)
+
+    input = ROOT.TFile.Open("histograms.root")
+    hists  = {}
+    funcs  = {}
+    rebin  = 1
+
+    livetime_csc = 140e-9
+    livetime_mdt = 1300e-9
+    boundary     = 2050 # mm
+
+    # area vs r
+    input_area = ROOT.TFile.Open("area.root")
+    area_L = input_area.Get("endcap_L_area")
+    area_S = input_area.Get("endcap_S_area")
+
+    for hist in [area_L, area_S]:
+        hist.Rebin(rebin)
+        style_vs_r(hist)
+        draw_vs_r(hist, ops.output)
+
     # hits vs r
-    for sector in ["L", "S"]:
-        for name in ["endcap_%s_hits_284213" % (sector),
-                     "endcap_%s_area_284213" % (sector),
-                     "endcap_%s_time_284213" % (sector),
-                     ]:
+    for run in runs:
+
+        name = "entries_%s" % (run)
+        entries = input.Get(name).GetBinContent(1)
+
+        for sector in ["L", "S"]:
+
+            name = "endcap_%s_hits_%s" % (sector, run)
             hists[name] = input.Get(name)
-
-            rebin = 1
-            if not "_time_" in name:
-                hists[name].Rebin(rebin)
-            else:
-                xposition = [hists[name].GetBinCenter( bin) for bin in xrange(0, hists[name].GetNbinsX()+1)]
-                timings   = [hists[name].GetBinContent(bin) for bin in xrange(0, hists[name].GetNbinsX()+1)]
-                hists[name].Rebin(rebin)
-                for xpos, timing in zip(xposition, timings):
-                    hists[name].SetBinContent(hists[name].FindBin(xpos), timing)
-                    hists[name].SetBinError(  hists[name].FindBin(xpos), 0)
-
-            hists[name].SetMarkerColor(ROOT.kAzure+1 if "_L_" in name else ROOT.kRed)
-            hists[name].SetMarkerStyle(20)
-            hists[name].GetXaxis().SetNdivisions(ndiv)
+            hists[name].Rebin(rebin)
+            style_vs_r(hists[name])
             for bin in xrange(0, hists[name].GetNbinsX()+1):
                 hists[name].SetBinError(bin, 0)
+            draw_vs_r(hists[name], ops.output)
+
+            numer = copy.copy(hists["endcap_%s_hits_%s" % (sector, run)])
+            denom = copy.copy(area_L if sector=="L" else area_S)
+
+            for bin in xrange(0, denom.GetNbinsX()+1):
+                radius   = denom.GetBinCenter(bin)
+                area     = denom.GetBinContent(bin)
+                livetime = livetime_csc if radius < boundary else livetime_mdt
+                denom.SetBinContent(bin, entries * area * livetime)
+
+            name = numer.GetName().replace("_hits_", "_rate_")
+            ratio = copy.copy(hists["endcap_%s_hits_%s" % (sector, run)])
+            ratio.Reset()
+
+            ratio.Divide(numer, denom)
+            ratio.SetName(name)
+            style_vs_r(ratio)
+            ratio.GetYaxis().SetTitle(ratio.GetYaxis().GetTitle().replace("hits", "hit rate [ cm^{-2} s^{-1} ]"))
+            ratio.SetMaximum(950)
             canvas = ROOT.TCanvas(name, name, 800, 800)
             canvas.Draw()
-            hists[name].Draw("psame")
+            ratio.Draw("psame")
+
+            exponential_csc = ROOT.TF1("fit_csc_"+name,"expo(0)",  950, 2000)
+            exponential_mdt = ROOT.TF1("fit_mdt_"+name,"expo(0)", 2050, 4400)
+            for expo in [exponential_csc,
+                         exponential_mdt,
+                         ]:
+                expo.SetLineColor(ROOT.kBlack)
+                expo.SetLineWidth(2)
+                expo.SetLineStyle(7)
+                ratio.Fit(expo, "RWQN")
+                
+                expo.Draw("same")
+
             canvas.SaveAs(os.path.join(ops.output, canvas.GetName()+".pdf"))
 
-        numer = copy.copy(hists["endcap_%s_hits_284213" % (sector)])
-        denom = copy.copy(hists["endcap_%s_hits_284213" % (sector)])
-        ratio = copy.copy(hists["endcap_%s_hits_284213" % (sector)])
-        for hist in [denom, ratio]:
-            hist.Reset()
+def style_vs_r(hist, ndiv=505):
+    name = hist.GetName()
+    hist.SetMarkerColor(ROOT.kAzure+1 if "L" in name else ROOT.kRed)
+    hist.SetMarkerStyle(20)
+    hist.SetMarkerSize(0.9)
+    hist.GetXaxis().SetNdivisions(ndiv)
+    hist.GetXaxis().SetRangeUser(700, 4700)
 
-        name = numer.GetName().replace("_hits_", "_rate_")
-        denom.Multiply(hists["endcap_%s_area_284213" % (sector)], hists["endcap_%s_time_284213" % (sector)])
-        ratio.Divide(numer, denom)
-        ratio.SetName(name)
-        ratio.SetMarkerColor(ROOT.kAzure+1 if "_L_" in name else ROOT.kRed)
-        ratio.SetMarkerStyle(20)
-        ratio.GetXaxis().SetNdivisions(ndiv)
-        ratio.GetYaxis().SetTitle(ratio.GetYaxis().GetTitle().replace("hits", "hit rate [ m^{-2} s^{-1} ]"))
-        ratio.SetMaximum(50)
-        ratio.GetXaxis().SetRangeUser(700, 4700)
-        canvas = ROOT.TCanvas(name, name, 800, 800)
-        canvas.Draw()
-        ratio.Draw("psame")
-
-        exponential_csc = ROOT.TF1("fit_csc"+name,"expo(0)",  950, 2000)
-        exponential_mdt = ROOT.TF1("fit_mdt"+name,"expo(0)", 2050, 4400)
-        for expo in [exponential_csc,
-                     exponential_mdt,
-                     ]:
-            expo.SetLineColor(ROOT.kBlack)
-            expo.SetLineWidth(2)
-            expo.SetLineStyle(7)
-            ratio.Fit(expo, "RWQN")
-
-            expo.Draw("same")
-
-        canvas.SaveAs(os.path.join(ops.output, canvas.GetName()+".pdf"))
-
+def draw_vs_r(hist, output):
+    name = hist.GetName()
+    canvas = ROOT.TCanvas(name, name, 800, 800)
+    canvas.Draw()
+    hist.Draw("psame")
+    canvas.SaveAs(os.path.join(output, canvas.GetName()+".pdf"))
 
 def draw_logos(xcoord, ycoord, run=None):
 
