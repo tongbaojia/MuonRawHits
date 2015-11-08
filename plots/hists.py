@@ -159,7 +159,7 @@ def ntuple_to_histogram(config):
             elif chamber_type == "CSS": region = "endcap_S_hits"
 
             for clus in xrange(nhits):
-                hists[region].Fill(tree.csc_chamber_cluster_r[ich][clus], 1)
+                hists[region].Fill(tree.csc_chamber_cluster_rmax[ich][clus], 1)
             
             hists["csc_all_bcid"].Fill(bcid, nhits)
                     
