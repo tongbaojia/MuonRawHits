@@ -217,8 +217,8 @@ def initialize_histograms(run, job):
             yaxis = "%s sectors: %s %s" % (sector, quantity, unit(quantity))
             hists["endcap_%s_%s" % (sector, quantity)] = ROOT.TH1F(name, ";%s;%s;" % (xaxis, yaxis), 500, 0, endcap_xaxis_max(name))
 
-    hists["mdt_all_bcid"] = ROOT.TH1F("mdt_all_vs_bcid_%s_job%s" % (run, job), ";%s;%s" % ("BCID", "hits in MDT"), 360, 0, 3600)
-    hists["csc_all_bcid"] = ROOT.TH1F("csc_all_vs_bcid_%s_job%s" % (run, job), ";%s;%s" % ("BCID", "hits in CSC"), 360, 0, 3600)
+    hists["mdt_all_bcid"] = ROOT.TH1F("mdt_all_vs_bcid_%s_job%s" % (run, job), ";%s;%s" % ("BCID", "hits in MDT"), 3600, 0, 3600)
+    hists["csc_all_bcid"] = ROOT.TH1F("csc_all_vs_bcid_%s_job%s" % (run, job), ";%s;%s" % ("BCID", "hits in CSC"), 3600, 0, 3600)
 
     for hist in hists:
         hists[hist].Sumw2()
