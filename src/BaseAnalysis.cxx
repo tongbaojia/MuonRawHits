@@ -218,10 +218,28 @@ int BaseAnalysis::CollidingBunches()
 
 int BaseAnalysis::ignore_csc_layer(std::string side, int phi_sector, int layer)
 {
-    if (side == "C" && phi_sector == 1 && layer == 1) return 1;
-    if (side == "C" && phi_sector == 3 && layer == 2) return 1;
-    if (side == "A" && phi_sector == 9 && layer == 1) return 1;
+    // https://atlasop.cern.ch/twiki/bin/view/Main/MuonSpectrometerWhiteBoard
+    if (side == "C" && phi_sector ==  1 && layer == 1) return 1;
+    if (side == "C" && phi_sector ==  3 && layer == 2) return 1;
+    if (side == "A" && phi_sector ==  9 && layer == 1) return 1;
 
+    // https://atlasop.cern.ch/elisa/display/280219
+    if (side == "A" && phi_sector ==  5 && layer == 1) return 1;
+    if (side == "A" && phi_sector ==  5 && layer == 2) return 1;
+    if (side == "A" && phi_sector ==  9 && layer == 1) return 1;
+    if (side == "A" && phi_sector ==  9 && layer == 2) return 1;
+    if (side == "A" && phi_sector == 13 && layer == 4) return 1;
+    if (side == "A" && phi_sector == 14 && layer == 2) return 1;
+    if (side == "A" && phi_sector == 15 && layer == 3) return 1;
+    if (side == "A" && phi_sector == 15 && layer == 4) return 1;
+    if (side == "A" && phi_sector == 16 && layer == 4) return 1;
+    if (side == "C" && phi_sector ==  1 && layer == 2) return 1;
+    if (side == "C" && phi_sector ==  3 && layer == 1) return 1;
+    if (side == "C" && phi_sector ==  7 && layer == 4) return 1;
+    if (side == "C" && phi_sector == 12 && layer == 4) return 1;
+    if (side == "C" && phi_sector == 13 && layer == 1) return 1;
+    if (side == "C" && phi_sector == 15 && layer == 4) return 1;
+    
     return 0;
 }
 
@@ -529,6 +547,11 @@ StatusCode BaseAnalysis::fill_mdt() {
     double ml_y = 0;
     double ml_z = 0;
 
+    std::string _name = "";
+    std::string _type = "";
+    int _eta = 0;
+    int _phi = 0;
+
     const Muon::MdtPrepDataContainer* mdts(0);
     CHECK(evtStore()->retrieve(mdts, "MDT_DriftCircles"));
 
@@ -550,9 +573,10 @@ StatusCode BaseAnalysis::fill_mdt() {
                 ml_y = ml_global_position.y();
                 ml_z = ml_global_position.z();
                 
-                std::string _type = readout->getStationType();
-                int _eta          = readout->getStationEta();
-                int _phi          = readout->getStationPhi();
+                _name = readout->getStationName();
+                _type = readout->getStationType();
+                _eta  = readout->getStationEta();
+                _phi  = readout->getStationPhi();
 
                 mdt_chamber_n++;
                 mdt_chamber_r.push_back(    r(ml_x, ml_y));
