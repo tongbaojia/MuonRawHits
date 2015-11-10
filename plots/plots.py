@@ -28,22 +28,22 @@ def options():
 def main():
     
     runs = [
-        # 278880,
-        # 279169,
+        278880,
+        279169,
         # 279345,
         # 279685,
-        # 280464,
+        280464,
         # 280673,
         # 280862,
         # 281074,
-        # 281143,
+        281143,
         # 281381,
         # 281385,
         # 281411,
-        # 282992,
+        282992,
         # 283429,
         # 283780,
-        284213,
+        # 284213,
         284285,
         ]
     
@@ -51,6 +51,7 @@ def main():
 #        plots_vs_lumi(runs, perbc)
 
     plots_vs_r(runs)
+    plots_vs_bcid(runs)
 
 def plots_vs_lumi(runs, perbc):
 
@@ -304,6 +305,44 @@ def plots_vs_r(runs):
 
             canvas.SaveAs(os.path.join(ops.output, canvas.GetName()+".pdf"))
 
+def plots_vs_bcid(runs):
+
+    ops = options()
+    if not ops.output:
+        ops.output = "output"
+    if not os.path.isdir(ops.output): 
+        os.makedirs(ops.output)
+
+    per_event = True
+
+    ROOT.gStyle.SetPadLeftMargin(0.12)
+    ROOT.gStyle.SetPadRightMargin(0.04)
+
+    input = ROOT.TFile.Open("histograms.root")
+    hists  = {}
+    funcs  = {}
+    rebin  = 1
+
+    # hits vs bcid
+    for run in runs:
+
+        entries         = input.Get("entries_%s" % (run)).GetBinContent(1)
+        entries_vs_bcid = input.Get("entries_vs_bcid_%s" % (run))
+
+        for det in ["mdt", "csc"]:
+
+            name = "%s_all_vs_bcid_%s" % (det, run)
+            hists[name] = input.Get(name)
+            if per_event:
+                hists[name].Divide(hists[name], entries_vs_bcid)
+            style_vs_bcid(hists[name], per_event)
+
+            canvas = ROOT.TCanvas(name, name, 1600, 500)
+            canvas.Draw()
+            hists[name].Draw("histsame")
+            draw_logos(xcoord=0.35, ycoord=0.85, run=run, fit=False)
+            canvas.SaveAs(os.path.join(ops.output, canvas.GetName()+".pdf"))
+
 def style_vs_r(hist, ndiv=505):
     name = hist.GetName()
     hist.SetMarkerColor(ROOT.kAzure+1 if "L" in name else ROOT.kRed)
@@ -312,14 +351,28 @@ def style_vs_r(hist, ndiv=505):
     hist.GetXaxis().SetNdivisions(ndiv)
     hist.GetXaxis().SetRangeUser(700, 4700)
 
-def draw_vs_r(hist, output):
+def draw_vs_r(hist, output, height=800, width=800, drawopt="psame", logos=False):
     name = hist.GetName()
-    canvas = ROOT.TCanvas(name, name, 800, 800)
+    canvas = ROOT.TCanvas(name, name, width, height)
     canvas.Draw()
-    hist.Draw("psame")
+    hist.Draw(drawopt)
+    if logos:
+        draw_logos()
     canvas.SaveAs(os.path.join(output, canvas.GetName()+".pdf"))
 
-def draw_logos(xcoord, ycoord, run=None):
+def style_vs_bcid(hist, per_event, ndiv=505):
+    name = hist.GetName()
+    hist.SetMarkerColor(ROOT.kBlack)
+    hist.SetMarkerStyle(20)
+    hist.SetMarkerSize(0.9)
+    hist.SetLineColor(ROOT.kBlack)
+    hist.SetLineStyle(1)
+    hist.GetXaxis().SetNdivisions(ndiv)
+    hist.GetYaxis().SetTitleOffset(1.0)
+    if per_event:
+        hist.SetMaximum(4100)
+
+def draw_logos(xcoord=0.5, ycoord=0.5, run=None, fit=True):
 
     atlas = ROOT.TLatex(xcoord, ycoord,      "ATLAS Internal")
     if run:
@@ -415,6 +468,7 @@ def bunches(run):
     if run == 283429: return 2029
     if run == 283780: return 2232
     if run == 284213: return 2232
+    if run == 284285: return 2232
 
 def kill_weird_bins(hist):
     for bin in xrange(1, hist.GetNbinsX()):
