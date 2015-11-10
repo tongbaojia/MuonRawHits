@@ -1,7 +1,7 @@
 here=$(pwd)
 pkg=$(dirname ${here})
 
-tag=2015-11-08-09h00m45s
+tag=2015-11-09-08h43m24s
 
 ntups=/n/atlasfs/atlasdata/tuna/MuonRawHits/ntuples-${tag}
 work=${pkg}/scripts/hists-${tag}
