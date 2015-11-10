@@ -109,12 +109,16 @@ def ntuple_to_histogram(config):
             progress(time.time() - start_time, entry, entries)
 
         tree.GetEntry(entry)
-        hists["entries"].Fill(1)
 
         lumi     = tree.lbAverageLuminosity/1000.0
         prescale = tree.prescale_HLT
         bcid     = tree.bcid
         bunches  = tree.colliding_bunches
+        if not bunches:
+            continue
+
+        hists["entries"].Fill(1)
+        hists["entries_vs_bcid"].Fill(bcid)
 
         for region in hists:
             hits[region] = 0
@@ -159,7 +163,7 @@ def ntuple_to_histogram(config):
             elif chamber_type == "CSS": region = "endcap_S_hits"
 
             for clus in xrange(nhits):
-                hists[region].Fill(tree.csc_chamber_cluster_rmax[ich][clus], 1)
+                hists[region].Fill(tree.csc_chamber_cluster_r[ich][clus], 1)
             
             hists["csc_all_bcid"].Fill(bcid, nhits)
                     
@@ -178,7 +182,8 @@ def initialize_histograms(run, job):
 
     hists = {}
 
-    hists["entries"] = ROOT.TH1F("entries_%s_job%s" % (run, job), "entries", 1, 0, 2)
+    hists["entries"]         = ROOT.TH1F("entries_%s_job%s"         % (run, job), "entries",    1, 0,    2)
+    hists["entries_vs_bcid"] = ROOT.TH1F("entries_vs_bcid_%s_job%s" % (run, job), "entries", 3600, 0, 3600)
 
     name = "mdt_all_vs_lumi_orbit_%s_job%s" % (run, job)
     xaxis = "< inst. lumi. per fill > [e^{33}_cm^{-2}_s^{-1}_]".replace("_", "#scale[0.5]{ }")
