@@ -111,6 +111,7 @@ def ntuple_to_histogram(config):
         tree.GetEntry(entry)
 
         lumi     = tree.lbAverageLuminosity/1000.0
+        lumiBC   = tree.lbLuminosityPerBCID
         prescale = tree.prescale_HLT
         bcid     = tree.bcid
         bunches  = tree.colliding_bunches
@@ -118,7 +119,11 @@ def ntuple_to_histogram(config):
             continue
 
         hists["entries"].Fill(1)
-        hists["entries_vs_bcid"].Fill(bcid)
+        hists["entries_vs_bcid"].Fill(bcid, 1)
+        hists["avglumi_vs_bcid"].Fill(bcid, lumi)
+        hists["actlumi_vs_bcid"].Fill(bcid, lumiBC)
+
+        hists["entries_vs_lumi"].Fill(lumi, prescale)
 
         for region in hists:
             hits[region] = 0
@@ -166,14 +171,24 @@ def ntuple_to_histogram(config):
                 hists[region].Fill(tree.csc_chamber_cluster_r[ich][clus], 1)
             
             hists["csc_all_bcid"].Fill(bcid, nhits)
+
+        hits["hits_vs_lumi_mdt_full"] = hits["mdt_all_orbit"]
+        hits["hits_vs_lumi_mdt_EIL1"] = hits["mdt_EIL1_orbit"]
+        hits["hits_vs_lumi_mdt_EIL2"] = hits["mdt_EIL2_orbit"]
+        hits["hits_vs_lumi_mdt_EIS1"] = hits["mdt_EIS1_orbit"]
+        hits["hits_vs_lumi_mdt_EIS2"] = hits["mdt_EIS2_orbit"]
+        hits["hits_vs_lumi_csc_L"]    = hits["csc_L_orbit"]
+        hits["hits_vs_lumi_csc_S"]    = hits["csc_S_orbit"]
                     
         for region in hists:
 
-            if "bunch" in region or "endcap" in region or "entries" in region or "bcid" in region:
-                continue
-            
-            hists[region].Fill(lumi, hits[region], prescale)
-            hists[region.replace("orbit", "bunch")].Fill(1000*lumi/bunches, hits[region], prescale)
+            if "_orbit" in region:
+                hists[region].Fill(lumi, hits[region], prescale)
+                hists[region.replace("orbit", "bunch")].Fill(1000*lumi/bunches, hits[region], prescale)
+
+            elif "hits_vs_lumi" in region:
+                hists[region].Fill(lumi, hits[region]*prescale)
+
 
     # alphabetize output
     return [hists[key] for key in sorted(hists.keys())]
@@ -184,9 +199,22 @@ def initialize_histograms(run, job):
 
     hists["entries"]         = ROOT.TH1F("entries_%s_job%s"         % (run, job), "entries",    1, 0,    2)
     hists["entries_vs_bcid"] = ROOT.TH1F("entries_vs_bcid_%s_job%s" % (run, job), "entries", 3600, 0, 3600)
+    hists["avglumi_vs_bcid"] = ROOT.TH1F("avglumi_vs_bcid_%s_job%s" % (run, job), "entries", 3600, 0, 3600)
+    hists["actlumi_vs_bcid"] = ROOT.TH1F("actlumi_vs_bcid_%s_job%s" % (run, job), "entries", 3600, 0, 3600)
+    hists["entries_vs_lumi"] = ROOT.TH1F("entries_vs_lumi_%s_job%s" % (run, job), "entries",  200, 0,    6)
+
+    xaxis, yaxis = "< inst. lumi. > [e^{33}_cm^{-2}_s^{-1}_]".replace("_", "#scale[0.5]{ }"), "hits"
+    title = ";%s;%s;" % (xaxis, yaxis)
+    hists["hits_vs_lumi_mdt_full"] = ROOT.TH1F("hits_vs_lumi_mdt_full_%s_job%s" % (run, job), title, 200, 0, 6)
+    hists["hits_vs_lumi_mdt_EIL1"] = ROOT.TH1F("hits_vs_lumi_mdt_EIL1_%s_job%s" % (run, job), title, 200, 0, 6)
+    hists["hits_vs_lumi_mdt_EIL2"] = ROOT.TH1F("hits_vs_lumi_mdt_EIL2_%s_job%s" % (run, job), title, 200, 0, 6)
+    hists["hits_vs_lumi_mdt_EIS1"] = ROOT.TH1F("hits_vs_lumi_mdt_EIS1_%s_job%s" % (run, job), title, 200, 0, 6)
+    hists["hits_vs_lumi_mdt_EIS2"] = ROOT.TH1F("hits_vs_lumi_mdt_EIS2_%s_job%s" % (run, job), title, 200, 0, 6)
+    hists["hits_vs_lumi_csc_L"]    = ROOT.TH1F("hits_vs_lumi_csc_L_%s_job%s"    % (run, job), title, 200, 0, 6)
+    hists["hits_vs_lumi_csc_S"]    = ROOT.TH1F("hits_vs_lumi_csc_S_%s_job%s"    % (run, job), title, 200, 0, 6)
 
     name = "mdt_all_vs_lumi_orbit_%s_job%s" % (run, job)
-    xaxis = "< inst. lumi. per fill > [e^{33}_cm^{-2}_s^{-1}_]".replace("_", "#scale[0.5]{ }")
+    xaxis = "< inst. lumi. > [e^{33}_cm^{-2}_s^{-1}_]".replace("_", "#scale[0.5]{ }")
     yaxis = "hits in MDT"
     zaxis = "arbitrary units"
 
