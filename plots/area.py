@@ -46,7 +46,7 @@ def main():
 def geometry_mdt_tubes_EI():
 
     livetime    = 1300e-9
-    mm2_to_cm2   = (1/10.0)*(1/10.0)
+    mm2_to_cm2  = (1/10.0)*(1/10.0)
     muonrawhits = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     geometry    = os.path.join(muonrawhits, "data/geometry/mdt_tubes_EI.txt")
 
