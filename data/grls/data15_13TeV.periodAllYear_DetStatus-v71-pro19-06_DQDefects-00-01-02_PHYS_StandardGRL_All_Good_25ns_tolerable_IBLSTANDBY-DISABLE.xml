@@ -6,10 +6,10 @@
 <NamedLumiRange>
 <Name>PHYS_StandardGRL_All_Good_25ns</Name>
 <Version>2.1</Version>
-<Metadata Name="ARQEquivalentQuery">find run data15_13TeV.periodAllYear and dq PHYS_StandardGRL_All_Good_25ns \PIXEL_IBL_STANDBY,TRIG_HLT_BJT_no_secvtx,PIXEL_IBL_DISABLED,ID_IBL_TRACKCOVERAGE_SEVERE DEFECTS#DetStatus-v70-pro19-04 g and dq PIXEL_IBL_STANDBY,TRIG_HLT_BJT_no_secvtx,PIXEL_IBL_DISABLED,ID_IBL_TRACKCOVERAGE_SEVERE DEFECTS#DetStatus-v70-pro19-04 r</Metadata>
-<Metadata Name="Query">Period: data15_13TeV.AllYear; Defect: PHYS_StandardGRL_All_Good_25ns; Defect tag: DetStatus-v70-pro19-04; Ignoring PIXEL_IBL_STANDBY,TRIG_HLT_BJT_no_secvtx,PIXEL_IBL_DISABLED,ID_IBL_TRACKCOVERAGE_SEVERE</Metadata>
+<Metadata Name="ARQEquivalentQuery">find run data15_13TeV.periodAllYear and dq PHYS_StandardGRL_All_Good_25ns \PIXEL_IBL_STANDBY,TRIG_HLT_BJT_no_secvtx,PIXEL_IBL_DISABLED,ID_IBL_TRACKCOVERAGE_SEVERE DEFECTS#DetStatus-v71-pro19-06 g and dq PIXEL_IBL_STANDBY,TRIG_HLT_BJT_no_secvtx,PIXEL_IBL_DISABLED,ID_IBL_TRACKCOVERAGE_SEVERE DEFECTS#DetStatus-v71-pro19-06 r</Metadata>
+<Metadata Name="Query">Period: data15_13TeV.AllYear; Defect: PHYS_StandardGRL_All_Good_25ns; Defect tag: DetStatus-v71-pro19-06; Ignoring PIXEL_IBL_STANDBY,TRIG_HLT_BJT_no_secvtx,PIXEL_IBL_DISABLED,ID_IBL_TRACKCOVERAGE_SEVERE</Metadata>
 <Metadata Name="RQTSVNVersion">DQDefects-00-01-02</Metadata>
-<Metadata Name="RunList">276262,276329,276336,276416,276511,276689,276778,276790,276952,276954,278880,278912,278968,278970,279169,279259,279279,279284,279345,279515,279598,279685,279764,279813,279867,279928,279932,279984,280231,280319,280368,280423,280464,280500,280520,280614,280673,280753,280853,280862,280950,280977,281070,281074,281075,281130,281143,281317,281385,281411,281978,282026,282248,282418,282420,282421,282455,282457,282625,282631,282712</Metadata>
+<Metadata Name="RunList">276262,276329,276336,276416,276511,276689,276778,276790,276952,276954,278880,278912,278968,278970,279169,279259,279279,279284,279345,279515,279598,279685,279764,279813,279867,279928,279932,279984,280231,280319,280368,280423,280464,280500,280520,280614,280673,280753,280853,280862,280950,280977,281070,281074,281075,281130,281143,281317,281385,281411,282625,282631,282712,282784,282992,283074,283155,283270,283429,283608,283780,284006,284154,284213,284285,284420,284427,284484</Metadata>
 <LumiBlockCollection>
 <Run>276262</Run>
 <LBRange Start="72" End="84"/>
@@ -448,41 +448,6 @@
 <LBRange Start="908" End="928"/>
 </LumiBlockCollection>
 <LumiBlockCollection>
-<Run>281978</Run>
-<LBRange Start="278" End="430"/>
-</LumiBlockCollection>
-<LumiBlockCollection>
-<Run>282026</Run>
-<LBRange Start="4" End="115"/>
-<LBRange Start="117" End="127"/>
-<LBRange Start="129" End="239"/>
-</LumiBlockCollection>
-<LumiBlockCollection>
-<Run>282248</Run>
-<LBRange Start="336" End="486"/>
-</LumiBlockCollection>
-<LumiBlockCollection>
-<Run>282418</Run>
-<LBRange Start="118" End="230"/>
-</LumiBlockCollection>
-<LumiBlockCollection>
-<Run>282420</Run>
-<LBRange Start="4" End="360"/>
-</LumiBlockCollection>
-<LumiBlockCollection>
-<Run>282421</Run>
-<LBRange Start="4" End="35"/>
-</LumiBlockCollection>
-<LumiBlockCollection>
-<Run>282455</Run>
-<LBRange Start="262" End="335"/>
-<LBRange Start="359" End="428"/>
-</LumiBlockCollection>
-<LumiBlockCollection>
-<Run>282457</Run>
-<LBRange Start="4" End="27"/>
-</LumiBlockCollection>
-<LumiBlockCollection>
 <Run>282625</Run>
 <LBRange Start="37" End="43"/>
 <LBRange Start="46" End="48"/>
@@ -520,6 +485,156 @@
 <LBRange Start="790" End="794"/>
 <LBRange Start="798" End="801"/>
 <LBRange Start="808" End="832"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>282784</Run>
+<LBRange Start="202" End="234"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>282992</Run>
+<LBRange Start="131" End="165"/>
+<LBRange Start="167" End="245"/>
+<LBRange Start="247" End="255"/>
+<LBRange Start="258" End="330"/>
+<LBRange Start="341" End="359"/>
+<LBRange Start="361" End="373"/>
+<LBRange Start="378" End="408"/>
+<LBRange Start="410" End="480"/>
+<LBRange Start="482" End="500"/>
+<LBRange Start="502" End="630"/>
+<LBRange Start="632" End="640"/>
+<LBRange Start="642" End="723"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>283074</Run>
+<LBRange Start="123" End="163"/>
+<LBRange Start="167" End="213"/>
+<LBRange Start="215" End="325"/>
+<LBRange Start="334" End="418"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>283155</Run>
+<LBRange Start="145" End="211"/>
+<LBRange Start="214" End="290"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>283270</Run>
+<LBRange Start="11" End="75"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>283429</Run>
+<LBRange Start="154" End="209"/>
+<LBRange Start="211" End="221"/>
+<LBRange Start="224" End="244"/>
+<LBRange Start="246" End="289"/>
+<LBRange Start="292" End="708"/>
+<LBRange Start="711" End="879"/>
+<LBRange Start="881" End="1009"/>
+<LBRange Start="1011" End="1090"/>
+<LBRange Start="1092" End="1105"/>
+<LBRange Start="1107" End="1121"/>
+<LBRange Start="1123" End="1203"/>
+<LBRange Start="1221" End="1246"/>
+<LBRange Start="1248" End="1383"/>
+<LBRange Start="1385" End="1439"/>
+<LBRange Start="1441" End="1455"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>283608</Run>
+<LBRange Start="8" End="104"/>
+<LBRange Start="106" End="131"/>
+<LBRange Start="133" End="135"/>
+<LBRange Start="138" End="160"/>
+<LBRange Start="162" End="179"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>283780</Run>
+<LBRange Start="282" End="285"/>
+<LBRange Start="290" End="379"/>
+<LBRange Start="381" End="505"/>
+<LBRange Start="507" End="544"/>
+<LBRange Start="546" End="732"/>
+<LBRange Start="734" End="1039"/>
+<LBRange Start="1042" End="1066"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>284006</Run>
+<LBRange Start="166" End="304"/>
+<LBRange Start="311" End="347"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>284154</Run>
+<LBRange Start="103" End="243"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>284213</Run>
+<LBRange Start="43" End="164"/>
+<LBRange Start="166" End="297"/>
+<LBRange Start="299" End="302"/>
+<LBRange Start="306" End="433"/>
+<LBRange Start="438" End="490"/>
+<LBRange Start="492" End="776"/>
+<LBRange Start="779" End="930"/>
+<LBRange Start="932" End="962"/>
+<LBRange Start="965" End="1033"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>284285</Run>
+<LBRange Start="223" End="337"/>
+<LBRange Start="339" End="419"/>
+<LBRange Start="423" End="426"/>
+<LBRange Start="428" End="440"/>
+<LBRange Start="442" End="480"/>
+<LBRange Start="482" End="485"/>
+<LBRange Start="487" End="543"/>
+<LBRange Start="549" End="624"/>
+<LBRange Start="626" End="739"/>
+<LBRange Start="741" End="779"/>
+<LBRange Start="781" End="832"/>
+<LBRange Start="836" End="913"/>
+<LBRange Start="915" End="920"/>
+<LBRange Start="922" End="992"/>
+<LBRange Start="994" End="1051"/>
+<LBRange Start="1053" End="1079"/>
+<LBRange Start="1081" End="1082"/>
+<LBRange Start="1085" End="1230"/>
+<LBRange Start="1232" End="1241"/>
+<LBRange Start="1243" End="1244"/>
+<LBRange Start="1247" End="1284"/>
+<LBRange Start="1286" End="1438"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>284420</Run>
+<LBRange Start="126" End="131"/>
+<LBRange Start="133" End="165"/>
+<LBRange Start="167" End="180"/>
+<LBRange Start="182" End="189"/>
+<LBRange Start="191" End="230"/>
+<LBRange Start="232" End="273"/>
+<LBRange Start="277" End="277"/>
+<LBRange Start="279" End="290"/>
+<LBRange Start="292" End="348"/>
+<LBRange Start="352" End="364"/>
+<LBRange Start="367" End="377"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>284427</Run>
+<LBRange Start="128" End="201"/>
+<LBRange Start="203" End="265"/>
+</LumiBlockCollection>
+<LumiBlockCollection>
+<Run>284484</Run>
+<LBRange Start="5" End="27"/>
+<LBRange Start="34" End="86"/>
+<LBRange Start="88" End="89"/>
+<LBRange Start="91" End="95"/>
+<LBRange Start="98" End="125"/>
+<LBRange Start="127" End="149"/>
+<LBRange Start="151" End="173"/>
+<LBRange Start="179" End="280"/>
+<LBRange Start="282" End="345"/>
+<LBRange Start="347" End="370"/>
+<LBRange Start="376" End="506"/>
 </LumiBlockCollection>
 </NamedLumiRange>
 </LumiRangeCollection>
