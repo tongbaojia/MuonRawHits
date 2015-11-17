@@ -610,12 +610,11 @@ StatusCode BaseAnalysis::fill_mdt() {
             }
 
             tubeid = (*tube)->identify();
-
-//             if (ignore_mdt_tube(mdt_chamber_name.back(),
-//                                 m_mdtIdHelper->multilayer(tubeid),
-//                                 m_mdtIdHelper->tubeLayer(tubeid),
-//                                 m_mdtIdHelper->tube(tubeid)))
-//                 continue;
+            if (ignore_mdt_tube(mdt_chamber_name.back(),
+                                m_mdtIdHelper->multilayer(tubeid),
+                                m_mdtIdHelper->tubeLayer(tubeid),
+                                m_mdtIdHelper->tube(tubeid)))
+                continue;
 
             tube_x = global_position.x();
             tube_y = global_position.y();
