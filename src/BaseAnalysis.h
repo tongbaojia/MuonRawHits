@@ -80,6 +80,7 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
   int         OfflineToOnlinePhi(std::string type, int phi);
 
   int ignore_csc_layer(std::string side, int phi_sector, int layer);
+  int ignore_mdt_tube(std::string chamber, int ml, int layer, int tube);
 
   void debug_luminosity();
 

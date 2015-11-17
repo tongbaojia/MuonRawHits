@@ -243,6 +243,17 @@ int BaseAnalysis::ignore_csc_layer(std::string side, int phi_sector, int layer)
     return 0;
 }
 
+int BaseAnalysis::ignore_mdt_tube(std::string chamber, int ml, int layer, int tube)
+{
+    if (chamber == "EIL2A15" && ml == 1 && layer == 1 && tube == 24) return 1;
+    if (chamber == "EIL2A15" && ml == 1 && layer == 1 && tube >= 33) return 1;
+    if (chamber == "EIL2A15" && ml == 1 && layer == 2 && tube == 35) return 1;
+    if (chamber == "EIL2A15" && ml == 1 && layer == 4 && tube == 32) return 1;
+    if (chamber == "EIL2A15" && ml == 1 && layer == 4 && tube >= 35) return 1;
+        
+    return 0;
+}
+
 void BaseAnalysis::debug_luminosity()
 {
     const xAOD::EventInfo* eventInfo = 0;
@@ -552,6 +563,8 @@ StatusCode BaseAnalysis::fill_mdt() {
     int _eta = 0;
     int _phi = 0;
 
+    Identifier tubeid;
+
     const Muon::MdtPrepDataContainer* mdts(0);
     CHECK(evtStore()->retrieve(mdts, "MDT_DriftCircles"));
 
@@ -595,7 +608,15 @@ StatusCode BaseAnalysis::fill_mdt() {
 
                 first = 0;
             }
-            
+
+            tubeid = (*tube)->identify();
+
+//             if (ignore_mdt_tube(mdt_chamber_name.back(),
+//                                 m_mdtIdHelper->multilayer(tubeid),
+//                                 m_mdtIdHelper->tubeLayer(tubeid),
+//                                 m_mdtIdHelper->tube(tubeid)))
+//                 continue;
+
             tube_x = global_position.x();
             tube_y = global_position.y();
 
