@@ -38,7 +38,7 @@
 #include "TrigDecisionTool/ChainGroup.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
-BaseAnalysis::BaseAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) : 
+BaseAnalysis::BaseAnalysis(const std::string& name, ISvcLocator* pSvcLocator):
     AthHistogramAlgorithm(name, pSvcLocator),
     m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_clusterUtilTool("CscClusterUtilTool/CscClusterUtilTool"),
@@ -85,16 +85,20 @@ StatusCode BaseAnalysis::execute() {
     // }
 
     CHECK(clear_branches());
-  
-    CHECK(fill_eventinfo());
-    CHECK(fill_trigger());
-    CHECK(fill_mdt());
-    CHECK(fill_csc());
 
-    // CHECK(dump_mdt_geometry());
-    // CHECK(dump_csc_geometry());
+    if (do_ntuples){
+        CHECK(fill_eventinfo());
+        CHECK(fill_trigger());
+        CHECK(fill_mdt());
+        CHECK(fill_csc());
 
-    tree->Fill();
+        tree->Fill();
+    }
+
+    if (do_geometry){
+        CHECK(dump_mdt_geometry());
+        CHECK(dump_csc_geometry());
+    }
 
     return StatusCode::SUCCESS;
 }
@@ -408,6 +412,9 @@ StatusCode BaseAnalysis::dump_mdt_geometry() {
 
             for (layer = layer_min; layer <= layer_max; layer++){
                 for (tube = tube_min; tube <= tube_max; tube++){
+
+                    if (ignore_mdt_tube(chamber_name, ml, layer, tube))
+                        continue;
 
                     tube_radius = ml_readout->innerTubeRadius();
                     tube_length = ml_readout->getActiveTubeLength(layer, tube);

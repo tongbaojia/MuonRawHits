@@ -84,6 +84,9 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
 
   void debug_luminosity();
 
+  int do_geometry = 1;
+  int do_ntuples  = 0;
+
   ToolHandle< Muon::MuonEDMHelperTool > m_helperTool; 
   ToolHandle< ICscClusterUtilTool >     m_clusterUtilTool;
   ToolHandle< Trig::TrigDecisionTool >  m_trigDecTool;
