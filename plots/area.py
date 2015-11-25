@@ -9,8 +9,8 @@ def main():
 
     xaxis = "radius [mm]"
 
-    endcap_L = ROOT.TH1F("endcap_L_area", ";%s;%s;" % (xaxis, "area: L [cm^{2}]"), 500, 0, hists.endcap_xaxis_max("_L_"))
-    endcap_S = ROOT.TH1F("endcap_S_area", ";%s;%s;" % (xaxis, "area: S [cm^{2}]"), 500, 0, hists.endcap_xaxis_max("_S_"))
+    area_vs_r_L = ROOT.TH1F("area_vs_r_L", ";%s;%s;" % (xaxis, "area: L [cm^{2}]"), 500, 0, 5200)
+    area_vs_r_S = ROOT.TH1F("area_vs_r_S", ";%s;%s;" % (xaxis, "area: S [cm^{2}]"), 500, 0, 5440)
 
     mdt_chambers, mdt_radii, mdt_areas, mdt_timings = geometry_mdt_tubes_EI()
     csc_chambers, csc_radii, csc_areas, csc_timings = geometry_csc_strips()
@@ -18,27 +18,27 @@ def main():
     # mdt geometry
     for chamber, radius, area, timing in zip(mdt_chambers, mdt_radii, mdt_areas, mdt_timings):
 
-        if   "EIL1" in chamber or "EIL2" in chamber: endcap_L.Fill(radius, area)
-        elif "EIS1" in chamber or "EIS2" in chamber: endcap_S.Fill(radius, area)
+        if   "EIL1" in chamber or "EIL2" in chamber: area_vs_r_L.Fill(radius, area)
+        elif "EIS1" in chamber or "EIS2" in chamber: area_vs_r_S.Fill(radius, area)
         else:
             continue
 
     # csc geometry
     for chamber, radius, area, timing in zip(csc_chambers, csc_radii, csc_areas, csc_timings):
 
-        if   "CSL" in chamber: endcap_L.Fill(radius, area)
-        elif "CSS" in chamber: endcap_S.Fill(radius, area)
+        if   "CSL" in chamber: area_vs_r_L.Fill(radius, area)
+        elif "CSS" in chamber: area_vs_r_S.Fill(radius, area)
         else:
             continue
 
     # turn off uncertainties
-    for hist in [endcap_L, endcap_S]:
+    for hist in [area_vs_r_L, area_vs_r_S]:
         for bin in xrange(0, hist.GetNbinsX()+1):
             hist.SetBinError(bin, 0.0)
 
     # write
     output = ROOT.TFile.Open("area.root", "recreate")
-    for hist in [endcap_L, endcap_S]:
+    for hist in [area_vs_r_L, area_vs_r_S]:
         output.cd()
         hist.Write()
     output.Close()
