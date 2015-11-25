@@ -4,8 +4,8 @@
 # $ athena.py input/${run}.py muonrawhits.py 
 #
 
-# theApp.EvtMax = 5
-svcMgr += CfgMgr.AthenaEventLoopMgr(EventPrintoutInterval=100)
+# theApp.EvtMax = 10
+svcMgr += CfgMgr.AthenaEventLoopMgr(EventPrintoutInterval=1000)
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
