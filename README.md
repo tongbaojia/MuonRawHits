@@ -8,7 +8,7 @@
     
     source scripts/batch-ntuples.sh
 
-### break up the ntuples for faster processing in run/
+### break up the ntuples for faster processing in run/, as desired
 
     python divide_and_randomize.py --input=input.root --output=divided/ --chunks=20
     
@@ -17,12 +17,6 @@
     for run in $(ls -1 ${batch_dir}); do
         python divide_and_randomize.py --input=${batch_dir}/${run}/*/ntuple*.root --output=${divide_dir}/${run}/ --chunks=30
     done
-
-### make histograms (may move this to C++) in plots/
-    python plots.py --hist --run=${run}
-
-### make plots in plots/
-    python plots.py --plot
 
 ### some handy one-liners
 
