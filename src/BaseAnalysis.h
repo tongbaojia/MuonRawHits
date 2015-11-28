@@ -133,6 +133,7 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
   std::vector<int>         mdt_chamber_phi_sector; //!
 
   std::vector<int>              mdt_chamber_tube_n; //!
+  std::vector<int>              mdt_chamber_tube_n_adc50; //!
   std::vector<std::vector<int>> mdt_chamber_tube_r; //!
   std::vector<std::vector<int>> mdt_chamber_tube_adc; //!
 
@@ -148,6 +149,7 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
   std::vector<int>         csc_chamber_phi_sector; //!
   
   std::vector<int>              csc_chamber_cluster_n; //!
+  std::vector<int>              csc_chamber_cluster_n_qmax25; //!
   std::vector<std::vector<int>> csc_chamber_cluster_r; //!
   std::vector<std::vector<int>> csc_chamber_cluster_rmax; //!
   std::vector<std::vector<int>> csc_chamber_cluster_qsum; //!

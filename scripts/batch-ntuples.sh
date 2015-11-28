@@ -29,7 +29,7 @@ for run in 00278880 00279169 00279345 00279685 00280231 00280464 00280673 002808
         echo "#"                            >> ${job}
         echo "#SBATCH -p pleiades"          >> ${job}
         echo "#SBATCH -t 1-0:0:0"           >> ${job}
-        echo "#SBATCH --mem-per-cpu 20000"  >> ${job}
+        echo "#SBATCH --mem-per-cpu 2048"   >> ${job}
         echo "#SBATCH --workdir ${jobdir}"  >> ${job}
         echo "#"                            >> ${job}
         
