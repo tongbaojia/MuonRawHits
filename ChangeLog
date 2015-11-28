@@ -1,3 +1,8 @@
+2015-11-27 Tuna <tuna@cern.ch>
+	* Adding ADC branches
+        * Tagging MuonRawHits-00-00-03
+	* Moving entirely to git/alexandertuna/MuonRawHits
+
 2015-11-06 Tuna <tuna@cern.ch>
         * Stablized geometry derivation
         * Tagging MuonRawHits-00-00-02
