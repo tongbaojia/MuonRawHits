@@ -80,10 +80,6 @@ StatusCode BaseAnalysis::initialize() {
 
 StatusCode BaseAnalysis::execute() {
 
-    // if (! m_trigDecTool->isPassed("HLT_mu20_iloose_L1MU15")){
-    //     return StatusCode::SUCCESS;
-    // }
-
     CHECK(clear_branches());
 
     if (do_ntuples){
@@ -294,24 +290,6 @@ StatusCode BaseAnalysis::fill_eventinfo() {
 
 StatusCode BaseAnalysis::fill_trigger() {
 
-    // std::cout << "fill_trigger: before" << std::endl << std::endl;
-
-    // triggers.clear();
-    // // triggers = m_trigDecTool->getListOfTriggers(".*");
-
-    // for (unsigned int itrig = 0; itrig < triggers.size(); ++itrig) {
-    //     // std::cout << triggers.at(itrig).c_str() << std::endl;
-    // }
-
-    // std::cout << "L1_ZB "   << m_trigDecTool->isPassed("L1_ZB")   << std::endl;
-    // std::cout << "L1_MU15 " << m_trigDecTool->isPassed("L1_MU15") << std::endl;
-
-    // std::cout << "Prescale:             L1_ZB " << m_trigDecTool->getPrescale("L1_ZB")             << std::endl;
-    // std::cout << "Prescale: HLT_noalg_zb_L1ZB " << m_trigDecTool->getPrescale("HLT_noalg_zb_L1ZB") << std::endl;
-
-    // std::cout << "fill_trigger: " << triggers.size() << std::endl << std::endl;
-    // std::cout << "fill_trigger: after" <<  std::endl << std::endl;
-
     prescale_L1  = m_trigDecTool->getPrescale("L1_ZB");
     prescale_HLT = m_trigDecTool->getPrescale("HLT_noalg_zb_L1ZB");
 
@@ -475,34 +453,12 @@ StatusCode BaseAnalysis::dump_csc_geometry() {
 
     for (chamber = cscs->begin(); chamber != cscs->end(); ++chamber) {
 
-        chamberid = (*chamber)->identify();
-        // m_cscIdHelper->print(chamberid);
-
-        // doesnt work
-        // const MuonGM::CscReadoutElement* readout = m_detMgr->getCscReadoutElement(chamberid);
-
-        // doesnt work
-        // elementid = m_cscIdHelper->elementID(m_cscIdHelper->stationName(chamberid),
-        //                                      m_cscIdHelper->stationEta(chamberid), 
-        //                                      m_cscIdHelper->stationPhi(chamberid));
-        // const MuonGM::CscReadoutElement* readout = m_detMgr->getCscReadoutElement(elementid);
-
-        // doesnt work
-        // channelid = m_cscIdHelper->channelID(m_cscIdHelper->stationName(chamberid),
-        //                                      m_cscIdHelper->stationEta(chamberid),
-        //                                      m_cscIdHelper->stationPhi(chamberid),
-        //                                      1, 1, measures_phi, 1);
-        // const MuonGM::CscReadoutElement* readout = m_detMgr->getCscReadoutElement(channelid);
-
-        // if (!readout){
-        //     std::cout << "--- fuckers ---" << std::endl;
-        //     continue;
-        // }
-
         if ((*chamber)->size() == 0) {
             std::cout << " SKIPPING " << std::endl;
             continue;
         }
+
+        chamberid = (*chamber)->identify();
 
         first = 1;
         const MuonGM::CscReadoutElement* readout(0);
