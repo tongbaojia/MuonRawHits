@@ -131,20 +131,20 @@ StatusCode BaseAnalysis::initialize_branches() {
     tree->Branch("mdt_chamber_tube_adc",     &mdt_chamber_tube_adc);
     tree->Branch("mdt_chamber_tube_n_adc50", &mdt_chamber_tube_n_adc50);
     
-    tree->Branch("csc_chamber_n",                &csc_chamber_n);
-    tree->Branch("csc_chamber_r",                &csc_chamber_r);
-    tree->Branch("csc_chamber_phi",              &csc_chamber_phi);
-    tree->Branch("csc_chamber_eta",              &csc_chamber_eta);
-    tree->Branch("csc_chamber_type",             &csc_chamber_type);
-    tree->Branch("csc_chamber_side",             &csc_chamber_side);
-    tree->Branch("csc_chamber_phi_sector",       &csc_chamber_phi_sector);
-    tree->Branch("csc_chamber_cluster_n",        &csc_chamber_cluster_n);
-    tree->Branch("csc_chamber_cluster_r",        &csc_chamber_cluster_r);
-    tree->Branch("csc_chamber_cluster_rmax",     &csc_chamber_cluster_rmax);
-    tree->Branch("csc_chamber_cluster_qsum",     &csc_chamber_cluster_qsum);
-    tree->Branch("csc_chamber_cluster_qmax",     &csc_chamber_cluster_qmax);
-    tree->Branch("csc_chamber_cluster_strips",   &csc_chamber_cluster_strips);
-    tree->Branch("csc_chamber_cluster_n_qmax25", &csc_chamber_cluster_n_qmax25);
+    tree->Branch("csc_chamber_n",                 &csc_chamber_n);
+    tree->Branch("csc_chamber_r",                 &csc_chamber_r);
+    tree->Branch("csc_chamber_phi",               &csc_chamber_phi);
+    tree->Branch("csc_chamber_eta",               &csc_chamber_eta);
+    tree->Branch("csc_chamber_type",              &csc_chamber_type);
+    tree->Branch("csc_chamber_side",              &csc_chamber_side);
+    tree->Branch("csc_chamber_phi_sector",        &csc_chamber_phi_sector);
+    tree->Branch("csc_chamber_cluster_n",         &csc_chamber_cluster_n);
+    tree->Branch("csc_chamber_cluster_r",         &csc_chamber_cluster_r);
+    tree->Branch("csc_chamber_cluster_rmax",      &csc_chamber_cluster_rmax);
+    tree->Branch("csc_chamber_cluster_qsum",      &csc_chamber_cluster_qsum);
+    tree->Branch("csc_chamber_cluster_qmax",      &csc_chamber_cluster_qmax);
+    tree->Branch("csc_chamber_cluster_strips",    &csc_chamber_cluster_strips);
+    tree->Branch("csc_chamber_cluster_n_qmax100", &csc_chamber_cluster_n_qmax100);
 
     return StatusCode::SUCCESS;
 }
@@ -323,7 +323,7 @@ StatusCode BaseAnalysis::clear_branches() {
     csc_chamber_phi_sector.clear();
 
     csc_chamber_cluster_n.clear();
-    csc_chamber_cluster_n_qmax25.clear();
+    csc_chamber_cluster_n_qmax100.clear();
     csc_chamber_cluster_r.clear();
     csc_chamber_cluster_rmax.clear();
     csc_chamber_cluster_qsum.clear();
@@ -661,7 +661,7 @@ StatusCode BaseAnalysis::fill_csc() {
                 csc_chamber_cluster_qsum.push_back(  std::vector<int>());
                 csc_chamber_cluster_qmax.push_back(  std::vector<int>());
                 csc_chamber_cluster_strips.push_back(std::vector<int>());
-                csc_chamber_cluster_n_qmax25.push_back(0);
+                csc_chamber_cluster_n_qmax100.push_back(0);
 
                 first = 0;
             }
@@ -708,8 +708,8 @@ StatusCode BaseAnalysis::fill_csc() {
             csc_chamber_cluster_qmax.back().push_back(qmax);
             csc_chamber_cluster_rmax.back().push_back(rmax);
 
-            if (csc_chamber_cluster_qmax.back().back() > 25*1000.0)
-                csc_chamber_cluster_n_qmax25.back()++;
+            if (csc_chamber_cluster_qmax.back().back() > 100*1000.0)
+                csc_chamber_cluster_n_qmax100.back()++;
 
         }
     }
