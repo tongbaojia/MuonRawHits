@@ -34,3 +34,6 @@
       python -c "import ROOT; tr = ROOT.TChain('physics'); tr.Add('${run}/*'); print '${run}', tr.GetEntries()"
     done
 
+    for ds in $(dq2-ls data15_13TeV.002*.physics_ZeroBias.recon.ESD.f* | sort); do 
+      echo ${ds} $(dq2-list-dataset-replicas ${ds} | grep NET2)
+    done
