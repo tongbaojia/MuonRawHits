@@ -150,6 +150,7 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
   
   std::vector<int>              csc_chamber_cluster_n; //!
   std::vector<int>              csc_chamber_cluster_n_qmax100; //!
+  std::vector<int>              csc_chamber_cluster_n_notecho; //!
   std::vector<std::vector<int>> csc_chamber_cluster_r; //!
   std::vector<std::vector<int>> csc_chamber_cluster_rmax; //!
   std::vector<std::vector<int>> csc_chamber_cluster_qsum; //!

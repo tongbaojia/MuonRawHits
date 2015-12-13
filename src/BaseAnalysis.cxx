@@ -80,6 +80,10 @@ StatusCode BaseAnalysis::initialize() {
 
 StatusCode BaseAnalysis::execute() {
 
+    if (! m_trigDecTool->isPassed("HLT_noalg_zb_L1ZB")){
+        return StatusCode::SUCCESS;
+    }
+
     CHECK(clear_branches());
 
     if (do_ntuples){
@@ -145,6 +149,7 @@ StatusCode BaseAnalysis::initialize_branches() {
     tree->Branch("csc_chamber_cluster_qmax",      &csc_chamber_cluster_qmax);
     tree->Branch("csc_chamber_cluster_strips",    &csc_chamber_cluster_strips);
     tree->Branch("csc_chamber_cluster_n_qmax100", &csc_chamber_cluster_n_qmax100);
+    tree->Branch("csc_chamber_cluster_n_notecho", &csc_chamber_cluster_n_notecho);
 
     return StatusCode::SUCCESS;
 }
@@ -293,6 +298,11 @@ StatusCode BaseAnalysis::fill_trigger() {
     prescale_L1  = m_trigDecTool->getPrescale("L1_ZB");
     prescale_HLT = m_trigDecTool->getPrescale("HLT_noalg_zb_L1ZB");
 
+    // std::cout << "isPassed:             L1_ZB " << m_trigDecTool->isPassed("L1_ZB")             << std::endl;
+    // std::cout << "isPassed: HLT_noalg_zb_L1ZB " << m_trigDecTool->isPassed("HLT_noalg_zb_L1ZB") << std::endl;
+    // std::cout << "isPassed:      HLT_j40_L1ZB " << m_trigDecTool->isPassed("HLT_j40_L1ZB")      << std::endl;
+    // std::cout << "isPassed" << std::endl;
+
     return StatusCode::SUCCESS;
 }
 
@@ -324,6 +334,7 @@ StatusCode BaseAnalysis::clear_branches() {
 
     csc_chamber_cluster_n.clear();
     csc_chamber_cluster_n_qmax100.clear();
+    csc_chamber_cluster_n_notecho.clear();
     csc_chamber_cluster_r.clear();
     csc_chamber_cluster_rmax.clear();
     csc_chamber_cluster_qsum.clear();
@@ -610,8 +621,17 @@ StatusCode BaseAnalysis::fill_csc() {
     double ch_z = 0;
 
     int measures_phi = 0;
+    int qleft        = 0;
+    int qright       = 0;
     int qmax         = 0;
     int rmax         = 0;
+
+    std::string _type = "";
+    int _eta = 0;
+    int _phi = 0;
+
+    unsigned int iter    = 0;
+    unsigned int itermax = 0;
 
     Identifier qmaxid;
 
@@ -642,9 +662,9 @@ StatusCode BaseAnalysis::fill_csc() {
                 ch_y = ch_global_position.y();
                 ch_z = ch_global_position.z();
 
-                std::string _type = readout->getStationType();
-                int _eta          = readout->getStationEta();
-                int _phi          = readout->getStationPhi();
+                _type = readout->getStationType();
+                _eta  = readout->getStationEta();
+                _phi  = readout->getStationPhi();
 
                 csc_chamber_n++;
                 csc_chamber_r.push_back((int)r(ch_x, ch_y));
@@ -662,6 +682,7 @@ StatusCode BaseAnalysis::fill_csc() {
                 csc_chamber_cluster_qmax.push_back(  std::vector<int>());
                 csc_chamber_cluster_strips.push_back(std::vector<int>());
                 csc_chamber_cluster_n_qmax100.push_back(0);
+                csc_chamber_cluster_n_notecho.push_back(0);
 
                 first = 0;
             }
@@ -691,11 +712,14 @@ StatusCode BaseAnalysis::fill_csc() {
             if (stripids.size() != stripfits.size()) 
                 ATH_MSG_FATAL("Number of strip ids is not equal to number of strip fits!");
 
-            qmax = 0;
-            for (unsigned int iter = 0; iter < stripfits.size(); ++iter){
+            qmax = 0; qleft = 0; qright = 0;
+            itermax = stripfits.size();
+            for (iter = 0; iter < itermax; ++iter){
                 if (stripfits[iter].charge > qmax){
                     // if only C++ had a zip function
-                    qmax = (int)(stripfits[iter].charge);
+                    qmax   =                      (int)(stripfits[iter  ].charge);
+                    qleft  = (iter > 0)         ? (int)(stripfits[iter-1].charge) : 0;
+                    qright = (iter < itermax-1) ? (int)(stripfits[iter+1].charge) : 0;
                     qmaxid = stripids[iter];
                 }
             }
@@ -710,6 +734,8 @@ StatusCode BaseAnalysis::fill_csc() {
 
             if (csc_chamber_cluster_qmax.back().back() > 100*1000.0)
                 csc_chamber_cluster_n_qmax100.back()++;
+            if (qleft > 0 && qright > 0)
+                csc_chamber_cluster_n_notecho.back()++;
 
         }
     }
