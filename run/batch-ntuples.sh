@@ -33,7 +33,7 @@ for run in 00278880 00279169 00279345 00279685 00280231 00280464 00280673 002808
         echo "#SBATCH --workdir ${jobdir}"  >> ${job}
         echo "#"                            >> ${job}
         
-        echo athena.py ${pkg}/run/input/${run}.py ${pkg}/run/input/${split}.py ${pkg}/run/muonrawhits.py >> ${job}
+        echo "athena.py ${pkg}/run/input/${run}.py ${pkg}/run/input/${split}.py ${pkg}/run/muonrawhits.py | grep -v TrigDec" >> ${job}
         
         sbatch ${job} | tee ${jobdir}/sbatch.txt
 
