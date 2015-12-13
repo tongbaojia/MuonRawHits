@@ -6,8 +6,8 @@
 <NamedLumiRange>
 <Name>PHYS_StandardGRL_All_Good_25ns</Name>
 <Version>2.1</Version>
-<Metadata Name="ARQEquivalentQuery">find run data15_13TeV.periodAllYear and dq PHYS_StandardGRL_All_Good_25ns \PIXEL_IBL_STANDBY,TRIG_HLT_BJT_no_secvtx,PIXEL_IBL_DISABLED,ID_IBL_TRACKCOVERAGE_SEVERE DEFECTS#DetStatus-v71-pro19-06 g and dq PIXEL_IBL_STANDBY,TRIG_HLT_BJT_no_secvtx,PIXEL_IBL_DISABLED,ID_IBL_TRACKCOVERAGE_SEVERE DEFECTS#DetStatus-v71-pro19-06 r</Metadata>
-<Metadata Name="Query">Period: data15_13TeV.AllYear; Defect: PHYS_StandardGRL_All_Good_25ns; Defect tag: DetStatus-v71-pro19-06; Ignoring PIXEL_IBL_STANDBY,TRIG_HLT_BJT_no_secvtx,PIXEL_IBL_DISABLED,ID_IBL_TRACKCOVERAGE_SEVERE</Metadata>
+<Metadata Name="ARQEquivalentQuery">find run data15_13TeV.periodAllYear and dq PHYS_StandardGRL_All_Good_25ns \PIXEL_IBL_STANDBY,TRIG_HLT_BJT_no_secvtx,PIXEL_IBL_DISABLED,ID_IBL_TRACKCOVERAGE_SEVERE DEFECTS#DetStatus-v73-pro19-08 g and dq PIXEL_IBL_STANDBY,TRIG_HLT_BJT_no_secvtx,PIXEL_IBL_DISABLED,ID_IBL_TRACKCOVERAGE_SEVERE DEFECTS#DetStatus-v73-pro19-08 r</Metadata>
+<Metadata Name="Query">Period: data15_13TeV.AllYear; Defect: PHYS_StandardGRL_All_Good_25ns; Defect tag: DetStatus-v73-pro19-08; Ignoring PIXEL_IBL_STANDBY,TRIG_HLT_BJT_no_secvtx,PIXEL_IBL_DISABLED,ID_IBL_TRACKCOVERAGE_SEVERE</Metadata>
 <Metadata Name="RQTSVNVersion">DQDefects-00-01-02</Metadata>
 <Metadata Name="RunList">276262,276329,276336,276416,276511,276689,276778,276790,276952,276954,278880,278912,278968,278970,279169,279259,279279,279284,279345,279515,279598,279685,279764,279813,279867,279928,279932,279984,280231,280319,280368,280423,280464,280500,280520,280614,280673,280753,280853,280862,280950,280977,281070,281074,281075,281130,281143,281317,281385,281411,282625,282631,282712,282784,282992,283074,283155,283270,283429,283608,283780,284006,284154,284213,284285,284420,284427,284484</Metadata>
 <LumiBlockCollection>
@@ -148,8 +148,7 @@
 <LumiBlockCollection>
 <Run>279764</Run>
 <LBRange Start="39" End="59"/>
-<LBRange Start="66" End="69"/>
-<LBRange Start="111" End="112"/>
+<LBRange Start="66" End="113"/>
 </LumiBlockCollection>
 <LumiBlockCollection>
 <Run>279813</Run>
@@ -397,14 +396,10 @@
 </LumiBlockCollection>
 <LumiBlockCollection>
 <Run>281385</Run>
-<LBRange Start="188" End="263"/>
-<LBRange Start="266" End="269"/>
-<LBRange Start="285" End="337"/>
-<LBRange Start="341" End="345"/>
-<LBRange Start="347" End="352"/>
-<LBRange Start="354" End="395"/>
+<LBRange Start="375" End="395"/>
 <LBRange Start="401" End="416"/>
-<LBRange Start="419" End="527"/>
+<LBRange Start="419" End="516"/>
+<LBRange Start="518" End="527"/>
 <LBRange Start="530" End="590"/>
 <LBRange Start="592" End="634"/>
 <LBRange Start="637" End="647"/>
