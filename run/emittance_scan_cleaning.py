@@ -10,8 +10,9 @@ ROOT.gStyle.SetPadBottomMargin(0.14)
 import os
 import glob
 
-esddir = "/n/atlasfs/atlasdata/tuna/"
-topdir = "/n/atlasfs/atlasdata/tuna/MuonRawHits/batch-2015-12-10-12h33m42s"
+esddir  = "/n/atlasfs/atlasdata/tuna/"
+topdir  = "/n/atlasfs/atlasdata/tuna/MuonRawHits/batch-2015-12-10-12h33m42s"
+summary = []
 
 for rundir in sorted(glob.glob(os.path.join(topdir, "*"))):
 
@@ -27,6 +28,7 @@ for rundir in sorted(glob.glob(os.path.join(topdir, "*"))):
     lbn_max  = tree.GetMaximum("lbn")
     lumi_min = tree.GetMinimum("lbAverageLuminosity")
     lumi_max = tree.GetMaximum("lbAverageLuminosity")
+    bad_lbs  = 0
     
     if not int(lbn_min) == lbn_min: print "FUCK FUCK"
     if not int(lbn_max) == lbn_max: print "FUCK FUCK"
@@ -56,9 +58,11 @@ for rundir in sorted(glob.glob(os.path.join(topdir, "*"))):
             
             bin = lumi_vs_lb.FindBin(xbincenter, ybincenter)
             if lumi_vs_lb.GetBinContent(bin) > 0 and ybincenter < lumi_end_of_run:
-                print "# kill me", run, xbincenter, ybincenter
+                bad_lbs += 1
                 for esd in glob.glob(os.path.join(esddir, "*%s*" % run, "*lb%04i*" % int(xbincenter))):
                     print "rm -f", esd
+
+    summary.append("# Run %i :: %7i / %7i LBs are suspect" % (int(run), bad_lbs, int(lbn_max-lbn_min)))
 
     lumi_vs_lb.GetXaxis().SetNdivisions(505)
     lumi_vs_lb.GetXaxis().SetTitleSize(0.05)
@@ -73,3 +77,8 @@ for rundir in sorted(glob.glob(os.path.join(topdir, "*"))):
 
     print
     # canvas.SaveAs("lumi_vs_lb_%s.pdf" % run)
+
+print
+for line in summary:
+    print line
+print
