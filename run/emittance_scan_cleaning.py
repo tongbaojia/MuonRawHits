@@ -11,7 +11,7 @@ import os
 import glob
 
 esddir  = "/n/atlasfs/atlasdata/tuna/"
-topdir  = "/n/atlasfs/atlasdata/tuna/MuonRawHits/batch-2015-12-10-12h33m42s"
+topdir  = "/n/atlasfs/atlasdata/tuna/MuonRawHits/batch-2016-02-01-11h04m18s"
 summary = []
 
 for rundir in sorted(glob.glob(os.path.join(topdir, "*"))):
@@ -19,6 +19,8 @@ for rundir in sorted(glob.glob(os.path.join(topdir, "*"))):
     run = os.path.basename(rundir)
     if "280231" in run:
         continue
+#    if not "279685" in run:
+#        continue
 
     tree = ROOT.TChain("physics")
     for rootfile in glob.glob(os.path.join(rundir, "*", "ntuple*.root")):
@@ -76,7 +78,7 @@ for rundir in sorted(glob.glob(os.path.join(topdir, "*"))):
     lumi_vs_lb.GetZaxis().SetTitleOffset(1.3)
 
     print
-    # canvas.SaveAs("lumi_vs_lb_%s.pdf" % run)
+    canvas.SaveAs("lumi_vs_lb_%s.pdf" % run)
 
 print
 for line in summary:
