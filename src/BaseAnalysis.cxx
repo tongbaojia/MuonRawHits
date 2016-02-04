@@ -133,6 +133,7 @@ StatusCode BaseAnalysis::initialize_branches() {
     tree->Branch("mdt_chamber_tube_n",       &mdt_chamber_tube_n);
     tree->Branch("mdt_chamber_tube_r",       &mdt_chamber_tube_r);
     tree->Branch("mdt_chamber_tube_adc",     &mdt_chamber_tube_adc);
+    tree->Branch("mdt_chamber_tube_id",      &mdt_chamber_tube_id);
     tree->Branch("mdt_chamber_tube_n_adc50", &mdt_chamber_tube_n_adc50);
     
     tree->Branch("csc_chamber_n",                 &csc_chamber_n);
@@ -147,6 +148,8 @@ StatusCode BaseAnalysis::initialize_branches() {
     tree->Branch("csc_chamber_cluster_rmax",      &csc_chamber_cluster_rmax);
     tree->Branch("csc_chamber_cluster_qsum",      &csc_chamber_cluster_qsum);
     tree->Branch("csc_chamber_cluster_qmax",      &csc_chamber_cluster_qmax);
+    tree->Branch("csc_chamber_cluster_qleft",     &csc_chamber_cluster_qleft);
+    tree->Branch("csc_chamber_cluster_qright",    &csc_chamber_cluster_qright);
     tree->Branch("csc_chamber_cluster_strips",    &csc_chamber_cluster_strips);
     tree->Branch("csc_chamber_cluster_n_qmax100", &csc_chamber_cluster_n_qmax100);
     tree->Branch("csc_chamber_cluster_n_notecho", &csc_chamber_cluster_n_notecho);
@@ -252,11 +255,287 @@ int BaseAnalysis::ignore_csc_layer(std::string side, int phi_sector, int layer)
 
 int BaseAnalysis::ignore_mdt_tube(std::string chamber, int ml, int layer, int tube)
 {
+    // from Tiesheng
     if (chamber == "EIL2A15" && ml == 1 && layer == 1 && tube == 24) return 1;
     if (chamber == "EIL2A15" && ml == 1 && layer == 1 && tube >= 33) return 1;
     if (chamber == "EIL2A15" && ml == 1 && layer == 2 && tube == 35) return 1;
     if (chamber == "EIL2A15" && ml == 1 && layer == 4 && tube == 32) return 1;
     if (chamber == "EIL2A15" && ml == 1 && layer == 4 && tube >= 35) return 1;
+
+    // these tubes have >10% occupancy in 284285 ZeroBias
+    if (chamber == "BEE1A03" && ml == 1 && layer == 1 && tube == 41) return 1;
+    if (chamber == "BEE1A03" && ml == 1 && layer == 1 && tube == 42) return 1;
+    if (chamber == "BEE1A03" && ml == 1 && layer == 3 && tube == 19) return 1;
+    if (chamber == "BEE2A06" && ml == 1 && layer == 1 && tube ==  5) return 1;
+    if (chamber == "BEE2A06" && ml == 1 && layer == 1 && tube ==  8) return 1;
+    if (chamber == "BEE2A06" && ml == 1 && layer == 1 && tube == 11) return 1;
+    if (chamber == "BEE2A06" && ml == 1 && layer == 1 && tube == 41) return 1;
+    if (chamber == "BEE2A06" && ml == 1 && layer == 1 && tube == 42) return 1;
+    if (chamber == "BIL1A13" && ml == 2 && layer == 4 && tube == 29) return 1;
+    if (chamber == "BIL2A07" && ml == 2 && layer == 1 && tube ==  1) return 1;
+    if (chamber == "BIL2A13" && ml == 2 && layer == 4 && tube == 16) return 1;
+    if (chamber == "BIL2A13" && ml == 2 && layer == 4 && tube == 17) return 1;
+    if (chamber == "BIL2C07" && ml == 2 && layer == 4 && tube == 22) return 1;
+    if (chamber == "BIL2C09" && ml == 2 && layer == 4 && tube == 18) return 1;
+    if (chamber == "BIL2C09" && ml == 2 && layer == 4 && tube == 30) return 1;
+    if (chamber == "BME1A07" && ml == 1 && layer == 3 && tube ==  1) return 1;
+    if (chamber == "BME1A07" && ml == 1 && layer == 4 && tube ==  1) return 1;
+    if (chamber == "BME1A07" && ml == 1 && layer == 4 && tube ==  2) return 1;
+    if (chamber == "BME1A07" && ml == 1 && layer == 4 && tube == 27) return 1;
+    if (chamber == "BME1A07" && ml == 1 && layer == 4 && tube == 28) return 1;
+    if (chamber == "BME1A07" && ml == 1 && layer == 4 && tube == 32) return 1;
+    if (chamber == "BME1A07" && ml == 1 && layer == 4 && tube == 37) return 1;
+    if (chamber == "BME1A07" && ml == 1 && layer == 4 && tube == 38) return 1;
+    if (chamber == "BME1A07" && ml == 1 && layer == 4 && tube == 40) return 1;
+    if (chamber == "BME1A07" && ml == 1 && layer == 4 && tube == 46) return 1;
+    if (chamber == "BME1A07" && ml == 1 && layer == 4 && tube == 73) return 1;
+    if (chamber == "BME1A07" && ml == 1 && layer == 4 && tube == 77) return 1;
+    if (chamber == "BME1A07" && ml == 2 && layer == 1 && tube == 78) return 1;
+    if (chamber == "BME1A07" && ml == 2 && layer == 2 && tube == 77) return 1;
+    if (chamber == "BME1A07" && ml == 2 && layer == 2 && tube == 78) return 1;
+    if (chamber == "BME1A07" && ml == 2 && layer == 3 && tube == 78) return 1;
+    if (chamber == "BME1A07" && ml == 2 && layer == 4 && tube == 42) return 1;
+    if (chamber == "BME1A07" && ml == 2 && layer == 4 && tube == 71) return 1;
+    if (chamber == "BME1A07" && ml == 2 && layer == 4 && tube == 72) return 1;
+    if (chamber == "BME1A07" && ml == 2 && layer == 4 && tube == 75) return 1;
+    if (chamber == "BME1A07" && ml == 2 && layer == 4 && tube == 76) return 1;
+    if (chamber == "BME1A07" && ml == 2 && layer == 4 && tube == 77) return 1;
+    if (chamber == "BME1A07" && ml == 2 && layer == 4 && tube == 78) return 1;
+    if (chamber == "BME1C07" && ml == 1 && layer == 1 && tube == 78) return 1;
+    if (chamber == "BME1C07" && ml == 1 && layer == 2 && tube == 78) return 1;
+    if (chamber == "BME1C07" && ml == 1 && layer == 3 && tube == 78) return 1;
+    if (chamber == "BME1C07" && ml == 1 && layer == 4 && tube == 78) return 1;
+    if (chamber == "BME1C07" && ml == 2 && layer == 2 && tube == 78) return 1;
+    if (chamber == "BME1C07" && ml == 2 && layer == 4 && tube == 78) return 1;
+    if (chamber == "BMF1A06" && ml == 1 && layer == 1 && tube ==  1) return 1;
+    if (chamber == "BMF1A06" && ml == 1 && layer == 2 && tube == 23) return 1;
+    if (chamber == "BMF1A06" && ml == 1 && layer == 3 && tube ==  7) return 1;
+    if (chamber == "BMF1A06" && ml == 1 && layer == 3 && tube == 15) return 1;
+    if (chamber == "BMF1A06" && ml == 1 && layer == 3 && tube == 24) return 1;
+    if (chamber == "BMF1A07" && ml == 1 && layer == 3 && tube == 57) return 1;
+    if (chamber == "BMF1A07" && ml == 2 && layer == 2 && tube == 44) return 1;
+    if (chamber == "BMF1A07" && ml == 2 && layer == 2 && tube == 47) return 1;
+    if (chamber == "BMF1A07" && ml == 2 && layer == 3 && tube == 62) return 1;
+    if (chamber == "BMF1C06" && ml == 1 && layer == 1 && tube == 62) return 1;
+    if (chamber == "BMF1C06" && ml == 1 && layer == 1 && tube == 63) return 1;
+    if (chamber == "BMF1C06" && ml == 1 && layer == 1 && tube == 69) return 1;
+    if (chamber == "BML1C01" && ml == 1 && layer == 2 && tube == 32) return 1;
+    if (chamber == "BML1C01" && ml == 2 && layer == 2 && tube == 32) return 1;
+    if (chamber == "BML1C07" && ml == 1 && layer == 3 && tube ==  1) return 1;
+    if (chamber == "BML1C07" && ml == 2 && layer == 3 && tube ==  1) return 1;
+    if (chamber == "BML2C09" && ml == 2 && layer == 2 && tube == 56) return 1;
+    if (chamber == "BML4A03" && ml == 1 && layer == 3 && tube == 18) return 1;
+    if (chamber == "BML6A03" && ml == 1 && layer == 3 && tube ==  1) return 1;
+    if (chamber == "BMS1A08" && ml == 1 && layer == 1 && tube == 17) return 1;
+    if (chamber == "BMS1A08" && ml == 1 && layer == 1 && tube == 46) return 1;
+    if (chamber == "BMS1A08" && ml == 1 && layer == 1 && tube == 53) return 1;
+    if (chamber == "BMS1A08" && ml == 1 && layer == 2 && tube == 20) return 1;
+    if (chamber == "BMS1A08" && ml == 1 && layer == 3 && tube == 20) return 1;
+    if (chamber == "BMS1A08" && ml == 1 && layer == 3 && tube == 45) return 1;
+    if (chamber == "BMS1A08" && ml == 2 && layer == 1 && tube == 16) return 1;
+    if (chamber == "BMS1A08" && ml == 2 && layer == 1 && tube == 25) return 1;
+    if (chamber == "BMS1A08" && ml == 2 && layer == 2 && tube == 16) return 1;
+    if (chamber == "BMS1A08" && ml == 2 && layer == 2 && tube == 24) return 1;
+    if (chamber == "BMS1A08" && ml == 2 && layer == 2 && tube == 28) return 1;
+    if (chamber == "BMS1A08" && ml == 2 && layer == 2 && tube == 30) return 1;
+    if (chamber == "BMS1A08" && ml == 2 && layer == 2 && tube == 36) return 1;
+    if (chamber == "BMS1A08" && ml == 2 && layer == 3 && tube == 17) return 1;
+    if (chamber == "BMS1A10" && ml == 2 && layer == 1 && tube ==  1) return 1;
+    if (chamber == "BMS1A10" && ml == 2 && layer == 1 && tube == 17) return 1;
+    if (chamber == "BMS1A10" && ml == 2 && layer == 1 && tube == 18) return 1;
+    if (chamber == "BMS1A10" && ml == 2 && layer == 1 && tube == 19) return 1;
+    if (chamber == "BMS1A10" && ml == 2 && layer == 1 && tube == 22) return 1;
+    if (chamber == "BMS1A10" && ml == 2 && layer == 1 && tube == 24) return 1;
+    if (chamber == "BMS1A10" && ml == 2 && layer == 1 && tube == 25) return 1;
+    if (chamber == "BMS1A10" && ml == 2 && layer == 1 && tube == 26) return 1;
+    if (chamber == "BMS1A10" && ml == 2 && layer == 1 && tube == 27) return 1;
+    if (chamber == "BMS1A10" && ml == 2 && layer == 1 && tube == 28) return 1;
+    if (chamber == "BMS1A10" && ml == 2 && layer == 1 && tube == 29) return 1;
+    if (chamber == "BMS1A10" && ml == 2 && layer == 1 && tube == 30) return 1;
+    if (chamber == "BMS1A10" && ml == 2 && layer == 1 && tube == 32) return 1;
+    if (chamber == "BMS1A10" && ml == 2 && layer == 1 && tube == 33) return 1;
+    if (chamber == "BMS1A16" && ml == 1 && layer == 3 && tube ==  1) return 1;
+    if (chamber == "BMS1A16" && ml == 1 && layer == 3 && tube == 29) return 1;
+    if (chamber == "BMS1A16" && ml == 1 && layer == 3 && tube == 30) return 1;
+    if (chamber == "BMS1A16" && ml == 1 && layer == 3 && tube == 31) return 1;
+    if (chamber == "BMS1A16" && ml == 1 && layer == 3 && tube == 32) return 1;
+    if (chamber == "BMS1A16" && ml == 2 && layer == 1 && tube == 25) return 1;
+    if (chamber == "BMS1A16" && ml == 2 && layer == 1 && tube == 27) return 1;
+    if (chamber == "BMS1A16" && ml == 2 && layer == 1 && tube == 56) return 1;
+    if (chamber == "BMS1A16" && ml == 2 && layer == 2 && tube == 34) return 1;
+    if (chamber == "BMS1A16" && ml == 2 && layer == 2 && tube == 35) return 1;
+    if (chamber == "BMS1C02" && ml == 1 && layer == 1 && tube == 54) return 1;
+    if (chamber == "BMS1C02" && ml == 1 && layer == 1 && tube == 56) return 1;
+    if (chamber == "BMS1C02" && ml == 1 && layer == 2 && tube == 56) return 1;
+    if (chamber == "BMS1C02" && ml == 1 && layer == 3 && tube == 13) return 1;
+    if (chamber == "BMS1C02" && ml == 1 && layer == 3 && tube == 56) return 1;
+    if (chamber == "BMS1C06" && ml == 1 && layer == 1 && tube == 54) return 1;
+    if (chamber == "BMS1C08" && ml == 1 && layer == 1 && tube == 17) return 1;
+    if (chamber == "BMS1C08" && ml == 1 && layer == 2 && tube == 56) return 1;
+    if (chamber == "BMS1C08" && ml == 1 && layer == 3 && tube == 56) return 1;
+    if (chamber == "BMS1C08" && ml == 2 && layer == 2 && tube == 16) return 1;
+    if (chamber == "BMS1C08" && ml == 2 && layer == 2 && tube == 56) return 1;
+    if (chamber == "BMS1C08" && ml == 2 && layer == 3 && tube == 16) return 1;
+    if (chamber == "BMS1C08" && ml == 2 && layer == 3 && tube == 17) return 1;
+    if (chamber == "BMS1C08" && ml == 2 && layer == 3 && tube == 54) return 1;
+    if (chamber == "BMS1C16" && ml == 1 && layer == 1 && tube == 56) return 1;
+    if (chamber == "BMS1C16" && ml == 1 && layer == 3 && tube == 14) return 1;
+    if (chamber == "BMS1C16" && ml == 2 && layer == 2 && tube == 56) return 1;
+    if (chamber == "BMS2A08" && ml == 1 && layer == 1 && tube ==  1) return 1;
+    if (chamber == "BMS2A08" && ml == 1 && layer == 3 && tube ==  1) return 1;
+    if (chamber == "BMS2A10" && ml == 1 && layer == 1 && tube == 11) return 1;
+    if (chamber == "BMS2C04" && ml == 2 && layer == 3 && tube ==  1) return 1;
+    if (chamber == "BMS2C08" && ml == 1 && layer == 1 && tube == 24) return 1;
+    if (chamber == "BMS2C08" && ml == 1 && layer == 1 && tube == 38) return 1;
+    if (chamber == "BMS2C08" && ml == 1 && layer == 1 && tube == 42) return 1;
+    if (chamber == "BMS2C08" && ml == 2 && layer == 1 && tube == 27) return 1;
+    if (chamber == "BMS2C08" && ml == 2 && layer == 1 && tube == 48) return 1;
+    if (chamber == "BMS2C08" && ml == 2 && layer == 3 && tube == 22) return 1;
+    if (chamber == "BMS2C08" && ml == 2 && layer == 3 && tube == 43) return 1;
+    if (chamber == "BMS2C16" && ml == 2 && layer == 2 && tube ==  1) return 1;
+    if (chamber == "BMS2C16" && ml == 2 && layer == 3 && tube ==  1) return 1;
+    if (chamber == "BMS4A10" && ml == 2 && layer == 1 && tube ==  1) return 1;
+    if (chamber == "BMS4C02" && ml == 2 && layer == 1 && tube ==  1) return 1;
+    if (chamber == "BMS4C08" && ml == 2 && layer == 1 && tube ==  2) return 1;
+    if (chamber == "BMS4C08" && ml == 2 && layer == 1 && tube ==  8) return 1;
+    if (chamber == "BMS4C16" && ml == 1 && layer == 1 && tube == 10) return 1;
+    if (chamber == "BMS5A04" && ml == 2 && layer == 1 && tube == 32) return 1;
+    if (chamber == "BMS5C02" && ml == 1 && layer == 2 && tube == 32) return 1;
+    if (chamber == "BMS6A06" && ml == 1 && layer == 1 && tube == 39) return 1;
+    if (chamber == "BMS6C10" && ml == 2 && layer == 3 && tube ==  1) return 1;
+    if (chamber == "BOF1A06" && ml == 2 && layer == 3 && tube == 12) return 1;
+    if (chamber == "BOF1C06" && ml == 2 && layer == 3 && tube == 62) return 1;
+    if (chamber == "BOF4C07" && ml == 2 && layer == 2 && tube ==  7) return 1;
+    if (chamber == "BOG2C07" && ml == 2 && layer == 1 && tube == 31) return 1;
+    if (chamber == "BOG2C07" && ml == 2 && layer == 3 && tube ==  5) return 1;
+    if (chamber == "BOG3A06" && ml == 2 && layer == 1 && tube == 38) return 1;
+    if (chamber == "BOG4A07" && ml == 1 && layer == 3 && tube == 38) return 1;
+    if (chamber == "BOG4A07" && ml == 1 && layer == 3 && tube == 40) return 1;
+    if (chamber == "BOG4C06" && ml == 1 && layer == 1 && tube == 23) return 1;
+    if (chamber == "BOG4C06" && ml == 1 && layer == 1 && tube == 25) return 1;
+    if (chamber == "BOG4C06" && ml == 1 && layer == 1 && tube == 26) return 1;
+    if (chamber == "BOG4C06" && ml == 1 && layer == 2 && tube == 21) return 1;
+    if (chamber == "BOG4C06" && ml == 1 && layer == 2 && tube == 22) return 1;
+    if (chamber == "BOG4C06" && ml == 1 && layer == 2 && tube == 23) return 1;
+    if (chamber == "BOG4C06" && ml == 1 && layer == 2 && tube == 24) return 1;
+    if (chamber == "BOG4C06" && ml == 1 && layer == 2 && tube == 25) return 1;
+    if (chamber == "BOG4C06" && ml == 1 && layer == 2 && tube == 26) return 1;
+    if (chamber == "BOG4C06" && ml == 1 && layer == 3 && tube == 22) return 1;
+    if (chamber == "BOG4C06" && ml == 1 && layer == 3 && tube == 24) return 1;
+    if (chamber == "BOG4C06" && ml == 1 && layer == 3 && tube == 27) return 1;
+    if (chamber == "BOG4C07" && ml == 2 && layer == 2 && tube == 39) return 1;
+    if (chamber == "BOG4C07" && ml == 2 && layer == 2 && tube == 40) return 1;
+    if (chamber == "BOL3A07" && ml == 1 && layer == 1 && tube ==  1) return 1;
+    if (chamber == "BOL5A05" && ml == 2 && layer == 3 && tube ==  1) return 1;
+    if (chamber == "BOL6A13" && ml == 2 && layer == 1 && tube ==  1) return 1;
+    if (chamber == "BOL6A13" && ml == 2 && layer == 1 && tube ==  2) return 1;
+    if (chamber == "BOL6A13" && ml == 2 && layer == 2 && tube ==  1) return 1;
+    if (chamber == "BOL6A13" && ml == 2 && layer == 3 && tube ==  2) return 1;
+    if (chamber == "BOL7C13" && ml == 1 && layer == 2 && tube == 56) return 1;
+    if (chamber == "BOL7C13" && ml == 1 && layer == 3 && tube == 49) return 1;
+    if (chamber == "BOL7C13" && ml == 1 && layer == 3 && tube == 50) return 1;
+    if (chamber == "BOL7C13" && ml == 1 && layer == 3 && tube == 54) return 1;
+    if (chamber == "BOL7C13" && ml == 1 && layer == 3 && tube == 56) return 1;
+    if (chamber == "BOL7C13" && ml == 1 && layer == 3 && tube == 57) return 1;
+    if (chamber == "BOL7C13" && ml == 1 && layer == 3 && tube == 63) return 1;
+    if (chamber == "BOL7C13" && ml == 1 && layer == 3 && tube == 66) return 1;
+    if (chamber == "BOL7C13" && ml == 2 && layer == 1 && tube == 65) return 1;
+    if (chamber == "BOL7C13" && ml == 2 && layer == 1 && tube == 70) return 1;
+    if (chamber == "BOL7C13" && ml == 2 && layer == 1 && tube == 71) return 1;
+    if (chamber == "BOL7C13" && ml == 2 && layer == 1 && tube == 72) return 1;
+    if (chamber == "BOL7C13" && ml == 2 && layer == 3 && tube == 49) return 1;
+    if (chamber == "BOL7C13" && ml == 2 && layer == 3 && tube == 56) return 1;
+    if (chamber == "BOS1C06" && ml == 1 && layer == 1 && tube ==  1) return 1;
+    if (chamber == "BOS2A16" && ml == 1 && layer == 2 && tube == 21) return 1;
+    if (chamber == "BOS2A16" && ml == 1 && layer == 3 && tube == 21) return 1;
+    if (chamber == "BOS2A16" && ml == 2 && layer == 1 && tube ==  1) return 1;
+    if (chamber == "BOS2C08" && ml == 1 && layer == 3 && tube == 19) return 1;
+    if (chamber == "BOS2C08" && ml == 1 && layer == 3 && tube == 20) return 1;
+    if (chamber == "BOS2C08" && ml == 1 && layer == 3 && tube == 22) return 1;
+    if (chamber == "BOS2C10" && ml == 2 && layer == 3 && tube == 19) return 1;
+    if (chamber == "BOS2C10" && ml == 2 && layer == 3 && tube == 56) return 1;
+    if (chamber == "BOS2C10" && ml == 2 && layer == 3 && tube == 72) return 1;
+    if (chamber == "BOS3A04" && ml == 2 && layer == 2 && tube == 13) return 1;
+    if (chamber == "BOS3A06" && ml == 2 && layer == 2 && tube == 23) return 1;
+    if (chamber == "BOS4A04" && ml == 1 && layer == 3 && tube ==  1) return 1;
+    if (chamber == "BOS4A04" && ml == 2 && layer == 3 && tube ==  1) return 1;
+    if (chamber == "BOS4A10" && ml == 2 && layer == 2 && tube == 72) return 1;
+    if (chamber == "BOS4A10" && ml == 2 && layer == 3 && tube == 13) return 1;
+    if (chamber == "BOS4A16" && ml == 1 && layer == 1 && tube ==  1) return 1;
+    if (chamber == "BOS4C10" && ml == 2 && layer == 1 && tube ==  1) return 1;
+    if (chamber == "BOS4C10" && ml == 2 && layer == 2 && tube == 72) return 1;
+    if (chamber == "BOS4C16" && ml == 2 && layer == 3 && tube == 72) return 1;
+    if (chamber == "BOS5C08" && ml == 1 && layer == 1 && tube == 63) return 1;
+    if (chamber == "BOS5C08" && ml == 1 && layer == 1 && tube == 64) return 1;
+    if (chamber == "BOS5C08" && ml == 1 && layer == 2 && tube ==  1) return 1;
+    if (chamber == "BOS5C08" && ml == 1 && layer == 3 && tube ==  1) return 1;
+    if (chamber == "BOS5C08" && ml == 1 && layer == 3 && tube ==  2) return 1;
+    if (chamber == "BOS5C08" && ml == 1 && layer == 3 && tube == 32) return 1;
+    if (chamber == "BOS6A02" && ml == 1 && layer == 3 && tube == 38) return 1;
+    if (chamber == "BOS6A02" && ml == 1 && layer == 3 && tube == 39) return 1;
+    if (chamber == "BOS6A04" && ml == 2 && layer == 3 && tube == 25) return 1;
+    if (chamber == "BOS6A04" && ml == 2 && layer == 3 && tube == 47) return 1;
+    if (chamber == "BOS6A04" && ml == 2 && layer == 3 && tube == 48) return 1;
+    if (chamber == "BOS6A04" && ml == 2 && layer == 3 && tube == 53) return 1;
+    if (chamber == "BOS6A04" && ml == 2 && layer == 3 && tube == 56) return 1;
+    if (chamber == "BOS6C02" && ml == 1 && layer == 1 && tube == 31) return 1;
+    if (chamber == "BOS6C02" && ml == 1 && layer == 1 && tube == 32) return 1;
+    if (chamber == "BOS6C02" && ml == 1 && layer == 2 && tube == 43) return 1;
+    if (chamber == "BOS6C02" && ml == 1 && layer == 3 && tube == 39) return 1;
+    if (chamber == "BOS6C02" && ml == 2 && layer == 1 && tube == 48) return 1;
+    if (chamber == "BOS6C02" && ml == 2 && layer == 1 && tube == 49) return 1;
+    if (chamber == "BOS6C02" && ml == 2 && layer == 3 && tube == 49) return 1;
+    if (chamber == "BOS6C02" && ml == 2 && layer == 3 && tube == 50) return 1;
+    if (chamber == "BOS6C02" && ml == 2 && layer == 3 && tube == 61) return 1;
+    if (chamber == "BOS6C04" && ml == 1 && layer == 1 && tube ==  3) return 1;
+    if (chamber == "BOS6C04" && ml == 1 && layer == 2 && tube == 43) return 1;
+    if (chamber == "BOS6C04" && ml == 1 && layer == 3 && tube == 32) return 1;
+    if (chamber == "BOS6C04" && ml == 2 && layer == 2 && tube == 48) return 1;
+    if (chamber == "BOS6C04" && ml == 2 && layer == 3 && tube == 14) return 1;
+    if (chamber == "BOS6C06" && ml == 1 && layer == 1 && tube == 44) return 1;
+    if (chamber == "BOS6C06" && ml == 1 && layer == 2 && tube == 28) return 1;
+    if (chamber == "BOS6C06" && ml == 2 && layer == 1 && tube == 14) return 1;
+    if (chamber == "BOS6C06" && ml == 2 && layer == 3 && tube ==  1) return 1;
+    if (chamber == "BOS6C06" && ml == 2 && layer == 3 && tube == 43) return 1;
+    if (chamber == "BOS6C06" && ml == 2 && layer == 3 && tube == 46) return 1;
+    if (chamber == "BOS6C06" && ml == 2 && layer == 3 && tube == 47) return 1;
+    if (chamber == "BOS6C06" && ml == 2 && layer == 3 && tube == 48) return 1;
+    if (chamber == "BOS6C08" && ml == 1 && layer == 3 && tube == 46) return 1;
+    if (chamber == "BOS6C08" && ml == 1 && layer == 3 && tube == 64) return 1;
+    if (chamber == "BOS6C08" && ml == 2 && layer == 3 && tube ==  5) return 1;
+    if (chamber == "BOS6C10" && ml == 2 && layer == 3 && tube == 53) return 1;
+    if (chamber == "BOS6C16" && ml == 1 && layer == 1 && tube == 13) return 1;
+    if (chamber == "EIL2A09" && ml == 2 && layer == 4 && tube ==  6) return 1;
+    if (chamber == "EIL3C11" && ml == 1 && layer == 2 && tube ==  1) return 1;
+    if (chamber == "EML2A13" && ml == 2 && layer == 3 && tube == 37) return 1;
+    if (chamber == "EML2A15" && ml == 2 && layer == 3 && tube == 10) return 1;
+    if (chamber == "EML5C01" && ml == 2 && layer == 3 && tube == 64) return 1;
+    if (chamber == "EMS2A08" && ml == 2 && layer == 1 && tube ==  9) return 1;
+    if (chamber == "EMS3A02" && ml == 1 && layer == 3 && tube == 59) return 1;
+    if (chamber == "EOL1A03" && ml == 1 && layer == 2 && tube == 55) return 1;
+    if (chamber == "EOL2A01" && ml == 1 && layer == 3 && tube == 24) return 1;
+    if (chamber == "EOL2C11" && ml == 2 && layer == 3 && tube == 56) return 1;
+    if (chamber == "EOL3A01" && ml == 1 && layer == 3 && tube == 15) return 1;
+    if (chamber == "EOL3A01" && ml == 2 && layer == 1 && tube ==  9) return 1;
+    if (chamber == "EOL3A01" && ml == 2 && layer == 1 && tube == 17) return 1;
+    if (chamber == "EOL3A01" && ml == 2 && layer == 2 && tube ==  7) return 1;
+    if (chamber == "EOL3A01" && ml == 2 && layer == 2 && tube == 25) return 1;
+    if (chamber == "EOL3A01" && ml == 2 && layer == 3 && tube ==  6) return 1;
+    if (chamber == "EOL3A01" && ml == 2 && layer == 3 && tube ==  7) return 1;
+    if (chamber == "EOL3A01" && ml == 2 && layer == 3 && tube ==  9) return 1;
+    if (chamber == "EOL3A05" && ml == 1 && layer == 1 && tube ==  8) return 1;
+    if (chamber == "EOL3A05" && ml == 1 && layer == 1 && tube == 48) return 1;
+    if (chamber == "EOL3A05" && ml == 2 && layer == 1 && tube == 48) return 1;
+    if (chamber == "EOL3A05" && ml == 2 && layer == 3 && tube == 14) return 1;
+    if (chamber == "EOL3C07" && ml == 1 && layer == 2 && tube == 48) return 1;
+    if (chamber == "EOL4A03" && ml == 1 && layer == 1 && tube == 32) return 1;
+    if (chamber == "EOL4C05" && ml == 1 && layer == 1 && tube == 48) return 1;
+    if (chamber == "EOL4C07" && ml == 1 && layer == 1 && tube ==  9) return 1;
+    if (chamber == "EOL5C05" && ml == 2 && layer == 3 && tube == 48) return 1;
+    if (chamber == "EOS2A04" && ml == 1 && layer == 3 && tube == 25) return 1;
+    if (chamber == "EOS2C16" && ml == 2 && layer == 1 && tube ==  9) return 1;
+    if (chamber == "EOS6A02" && ml == 1 && layer == 3 && tube ==  9) return 1;
+    if (chamber == "EOS6C02" && ml == 2 && layer == 3 && tube == 34) return 1;
         
     return 0;
 }
@@ -323,6 +602,7 @@ StatusCode BaseAnalysis::clear_branches() {
     mdt_chamber_tube_n_adc50.clear();
     mdt_chamber_tube_r.clear();
     mdt_chamber_tube_adc.clear();
+    mdt_chamber_tube_id.clear();
     
     csc_chamber_n = 0;
     csc_chamber_r.clear();
@@ -339,6 +619,8 @@ StatusCode BaseAnalysis::clear_branches() {
     csc_chamber_cluster_rmax.clear();
     csc_chamber_cluster_qsum.clear();
     csc_chamber_cluster_qmax.clear();
+    csc_chamber_cluster_qleft.clear();
+    csc_chamber_cluster_qright.clear();
     csc_chamber_cluster_strips.clear();
     csc_chamber_cluster_measuresphi.clear();
 
@@ -583,6 +865,7 @@ StatusCode BaseAnalysis::fill_mdt() {
                 mdt_chamber_tube_n.push_back(0);
                 mdt_chamber_tube_r.push_back(  std::vector<int>());
                 mdt_chamber_tube_adc.push_back(std::vector<int>());
+                mdt_chamber_tube_id.push_back(std::vector<int>());
                 mdt_chamber_tube_n_adc50.push_back(0);
 
                 first = 0;
@@ -601,6 +884,27 @@ StatusCode BaseAnalysis::fill_mdt() {
             mdt_chamber_tube_n.back()++;
             mdt_chamber_tube_r.back().push_back((int)(r(tube_x, tube_y)));
             mdt_chamber_tube_adc.back().push_back((*tube)->adc());
+            mdt_chamber_tube_id.back().push_back(m_mdtIdHelper->multilayer(tubeid)*1000 + 
+                                                 m_mdtIdHelper->tubeLayer(tubeid)*100   + 
+                                                 m_mdtIdHelper->tube(tubeid));
+
+            // std::cout << mdt_chamber_name.back()            << " "
+            //           << mdt_chamber_type.back()            << " "
+            //           << mdt_chamber_side.back()            << " "
+            //           << mdt_chamber_eta_station.back()     << " "
+            //           << mdt_chamber_phi_sector.back()      << " "
+            //           << m_mdtIdHelper->multilayer(tubeid)  << " "
+            //           << m_mdtIdHelper->tubeLayer(tubeid)   << " "
+            //           << m_mdtIdHelper->tube(tubeid)        << " "
+            //           << (*tube)->adc()                     << " "
+            //           << (*tube)->tdc()                     << "          "
+            //           << tubeid                             << " "
+            //           << std::endl;
+            
+            // id = XYZZ
+            //  X = multilayer
+            //  Y = tubelayer
+            // ZZ = tube
 
             if ((*tube)->adc() > 50)
                 mdt_chamber_tube_n_adc50.back()++;
@@ -680,6 +984,8 @@ StatusCode BaseAnalysis::fill_csc() {
                 csc_chamber_cluster_rmax.push_back(  std::vector<int>());
                 csc_chamber_cluster_qsum.push_back(  std::vector<int>());
                 csc_chamber_cluster_qmax.push_back(  std::vector<int>());
+                csc_chamber_cluster_qleft.push_back( std::vector<int>());
+                csc_chamber_cluster_qright.push_back(std::vector<int>());
                 csc_chamber_cluster_strips.push_back(std::vector<int>());
                 csc_chamber_cluster_n_qmax100.push_back(0);
                 csc_chamber_cluster_n_notecho.push_back(0);
@@ -728,9 +1034,11 @@ StatusCode BaseAnalysis::fill_csc() {
 
             const Amg::Vector3D& qmax_position = readout->stripPos(qmaxid);
             rmax = (int)(r(qmax_position.x(), qmax_position.y()));
-
-            csc_chamber_cluster_qmax.back().push_back(qmax);
+            
             csc_chamber_cluster_rmax.back().push_back(rmax);
+            csc_chamber_cluster_qmax.back().push_back(qmax);
+            csc_chamber_cluster_qleft.back().push_back(qleft);
+            csc_chamber_cluster_qright.back().push_back(qright);
 
             if (csc_chamber_cluster_qmax.back().back() > 100*1000.0)
                 csc_chamber_cluster_n_qmax100.back()++;
