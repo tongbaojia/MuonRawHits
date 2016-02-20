@@ -25,9 +25,11 @@
     cat csc_everything_disambig.txt | grep strip   > ../data/geometry/csc_strips.txt
     cat csc_everything_disambig.txt | grep chamber > ../data/geometry/csc_chambers.txt
 
+    // 150 events, plz
     athena.py input/00281411.py muonrawhits.py | grep "tube\|chamber" | grep -v "CSL" | grep -v "CSS" | tee mdt_everything.txt
     python -c "for line in sorted(list(set(open('mdt_everything.txt').readlines()))): print line.strip()" > mdt_everything_disambig.txt
     cat mdt_everything_disambig.txt | grep tube | grep EI > ../data/geometry/mdt_tubes_EI.txt
+    cat mdt_everything_disambig.txt | grep tube | grep EM > ../data/geometry/mdt_tubes_EM.txt
     cat mdt_everything_disambig.txt | grep chamber        > ../data/geometry/mdt_chambers.txt
 
     for run in 00*; do 
