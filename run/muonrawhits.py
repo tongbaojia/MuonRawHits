@@ -4,7 +4,7 @@
 # $ athena.py input/${run}.py muonrawhits.py 
 #
 
-# theApp.EvtMax = 10
+# theApp.EvtMax = 150
 svcMgr += CfgMgr.AthenaEventLoopMgr(EventPrintoutInterval=1000)
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -13,7 +13,7 @@ from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo = 'atlas'
 
 from RecExConfig.InputFilePeeker import inputFileSummary
-globalflags.DataSource = 'data' # if inputFileSummary['evt_type'][0] == "IS_DATA" else 'geant4'
+globalflags.DataSource = 'data' if inputFileSummary['evt_type'][0] == "IS_DATA" else 'geant4'
 globalflags.DetDescrVersion = inputFileSummary['geometry']
 
 # e.g. if I am accessing CaloCellContainer, I need the calo detector description
