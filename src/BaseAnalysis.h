@@ -113,6 +113,7 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
   int lbn; //!
   int bcid; //!
   int colliding_bunches; //!
+  int isMC; //!
   double avgIntPerXing; //!
   double actIntPerXing; //!
   double lbAverageLuminosity; //!

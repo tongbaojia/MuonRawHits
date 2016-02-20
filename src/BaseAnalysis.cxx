@@ -80,14 +80,14 @@ StatusCode BaseAnalysis::initialize() {
 
 StatusCode BaseAnalysis::execute() {
 
-    if (! m_trigDecTool->isPassed("HLT_noalg_zb_L1ZB")){
+    CHECK(fill_eventinfo());
+
+    if ((!m_trigDecTool->isPassed("HLT_noalg_zb_L1ZB")) && (!isMC))
         return StatusCode::SUCCESS;
-    }
 
     CHECK(clear_branches());
 
     if (do_ntuples){
-        CHECK(fill_eventinfo());
         CHECK(fill_trigger());
         CHECK(fill_mdt());
         CHECK(fill_csc());
@@ -113,6 +113,7 @@ StatusCode BaseAnalysis::initialize_branches() {
     tree->Branch("EventNumber",         &EventNumber);
     tree->Branch("lbn",                 &lbn);
     tree->Branch("bcid",                &bcid);
+    tree->Branch("isMC",                &isMC);
     tree->Branch("colliding_bunches",   &colliding_bunches);
     tree->Branch("avgIntPerXing",       &avgIntPerXing);
     tree->Branch("actIntPerXing",       &actIntPerXing);
@@ -563,19 +564,23 @@ StatusCode BaseAnalysis::fill_eventinfo() {
     EventNumber         = eventInfo->eventNumber();
     lbn                 = eventInfo->lumiBlock();
     bcid                = eventInfo->bcid();
+    isMC                = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
     colliding_bunches   = CollidingBunches();
     avgIntPerXing       = eventInfo->averageInteractionsPerCrossing();
     actIntPerXing       = eventInfo->actualInteractionsPerCrossing();
     lbAverageLuminosity = m_lumiTool->lbAverageLuminosity();
     lbLuminosityPerBCID = m_lumiTool->lbLuminosityPerBCID(eventInfo->bcid());
 
+    if (isMC)
+        RunNumber = eventInfo->mcChannelNumber();
+
     return StatusCode::SUCCESS;
 }
 
 StatusCode BaseAnalysis::fill_trigger() {
 
-    prescale_L1  = m_trigDecTool->getPrescale("L1_ZB");
-    prescale_HLT = m_trigDecTool->getPrescale("HLT_noalg_zb_L1ZB");
+    prescale_L1  = (isMC) ? 1.0 : m_trigDecTool->getPrescale("L1_ZB");
+    prescale_HLT = (isMC) ? 1.0 : m_trigDecTool->getPrescale("HLT_noalg_zb_L1ZB");
 
     // std::cout << "isPassed:             L1_ZB " << m_trigDecTool->isPassed("L1_ZB")             << std::endl;
     // std::cout << "isPassed: HLT_noalg_zb_L1ZB " << m_trigDecTool->isPassed("HLT_noalg_zb_L1ZB") << std::endl;
