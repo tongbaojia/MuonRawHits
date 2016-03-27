@@ -63,6 +63,7 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
   virtual StatusCode fill_trigger();
   virtual StatusCode fill_mdt();
   virtual StatusCode fill_csc();
+  virtual StatusCode fill_csc_segments();
 
   virtual StatusCode dump_mdt_geometry();
   virtual StatusCode dump_csc_geometry();
@@ -161,6 +162,18 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
   std::vector<std::vector<int>> csc_chamber_cluster_qright; //!
   std::vector<std::vector<int>> csc_chamber_cluster_strips; //!
   std::vector<std::vector<int>> csc_chamber_cluster_measuresphi; //!
+  std::vector<std::vector<int>> csc_chamber_cluster_segment; //!
+
+  int csc_segment_n;
+  std::vector<int>         csc_segment_r; //!
+  std::vector<double>      csc_segment_phi; //!
+  std::vector<double>      csc_segment_eta; //!
+  std::vector<int>         csc_segment_netaclusters; //!
+  std::vector<int>         csc_segment_nphiclusters; //!
+  std::vector<std::string> csc_segment_name; //!
+  std::vector<std::string> csc_segment_type; //!
+  std::vector<std::string> csc_segment_side; //!
+  std::vector<int>         csc_segment_phi_sector; //!
 
 };
 

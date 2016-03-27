@@ -15,6 +15,7 @@
 #include <string>
 
 #include "Identifier/Identifier.h"
+#include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonIdHelpers/RpcIdHelper.h"
@@ -34,6 +35,8 @@
 
 #include "CscClusterization/ICscClusterFitter.h"
 #include "CscClusterization/ICscClusterUtilTool.h"
+
+#include "TrkSegment/SegmentCollection.h"
 
 #include "TrigDecisionTool/ChainGroup.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -91,6 +94,7 @@ StatusCode BaseAnalysis::execute() {
         CHECK(fill_trigger());
         CHECK(fill_mdt());
         CHECK(fill_csc());
+        CHECK(fill_csc_segments());
 
         tree->Fill();
     }
@@ -154,6 +158,17 @@ StatusCode BaseAnalysis::initialize_branches() {
     tree->Branch("csc_chamber_cluster_strips",    &csc_chamber_cluster_strips);
     tree->Branch("csc_chamber_cluster_n_qmax100", &csc_chamber_cluster_n_qmax100);
     tree->Branch("csc_chamber_cluster_n_notecho", &csc_chamber_cluster_n_notecho);
+    tree->Branch("csc_chamber_cluster_segment",   &csc_chamber_cluster_segment);
+
+    tree->Branch("csc_segment_n",            &csc_segment_n);
+    tree->Branch("csc_segment_r",            &csc_segment_r);
+    tree->Branch("csc_segment_phi",          &csc_segment_phi);
+    tree->Branch("csc_segment_eta",          &csc_segment_eta);
+    tree->Branch("csc_segment_type",         &csc_segment_type);
+    tree->Branch("csc_segment_side",         &csc_segment_side);
+    tree->Branch("csc_segment_phi_sector",   &csc_segment_phi_sector);
+    tree->Branch("csc_segment_nphiclusters", &csc_segment_nphiclusters);
+    tree->Branch("csc_segment_netaclusters", &csc_segment_netaclusters);
 
     return StatusCode::SUCCESS;
 }
@@ -628,6 +643,18 @@ StatusCode BaseAnalysis::clear_branches() {
     csc_chamber_cluster_qright.clear();
     csc_chamber_cluster_strips.clear();
     csc_chamber_cluster_measuresphi.clear();
+    csc_chamber_cluster_segment.clear();
+
+    csc_segment_n = 0;
+    csc_segment_r.clear();
+    csc_segment_phi.clear();
+    csc_segment_eta.clear();
+    csc_segment_netaclusters.clear();
+    csc_segment_nphiclusters.clear();
+    csc_segment_name.clear();
+    csc_segment_type.clear();
+    csc_segment_side.clear();
+    csc_segment_phi_sector.clear();
 
     return StatusCode::SUCCESS;
 }
@@ -659,10 +686,9 @@ StatusCode BaseAnalysis::dump_mdt_geometry() {
     Identifier chamberid;
     Identifier channelid;
 
-    Muon::MdtPrepDataContainer::const_iterator chamber;
-    for (chamber = mdts->begin(); chamber != mdts->end() ; ++chamber) {
+    for (auto chamber: *mdts) {
 
-        chamberid = (*chamber)->identify();
+        chamberid = chamber->identify();
 
         const MuonGM::MdtReadoutElement* readout = m_detMgr->getMdtReadoutElement(chamberid);
 
@@ -739,7 +765,6 @@ StatusCode BaseAnalysis::dump_csc_geometry() {
     double epsilon      = 0;
 
     int measures_phi  = 0;
-    int first         = 0;
 
     Identifier chamberid;
     Identifier channelid;
@@ -747,22 +772,20 @@ StatusCode BaseAnalysis::dump_csc_geometry() {
 
     const Muon::CscPrepDataContainer* cscs(0);
     CHECK(evtStore()->retrieve(cscs, "CSC_Clusters"));
-    Muon::CscPrepDataContainer::const_iterator chamber;
 
-    for (chamber = cscs->begin(); chamber != cscs->end(); ++chamber) {
+    for (auto chamber: *cscs) {
 
-        if ((*chamber)->size() == 0) {
+        if (chamber->size() == 0) {
             std::cout << " SKIPPING " << std::endl;
             continue;
         }
 
-        chamberid = (*chamber)->identify();
+        chamberid = chamber->identify();
 
-        first = 1;
         const MuonGM::CscReadoutElement* readout(0);
-        for (Muon::CscPrepDataCollection::const_iterator cluster = (*chamber)->begin(); cluster != (*chamber)->end(); ++cluster) {
-            if (first) readout = (*cluster)->detectorElement();
-            else continue;
+        for (auto cluster: *chamber) {
+            readout = cluster->detectorElement();
+            break;
         }
 
         chamber_type = readout->getStationType();
@@ -830,19 +853,18 @@ StatusCode BaseAnalysis::fill_mdt() {
 
     Identifier tubeid;
 
-    const Muon::MdtPrepDataContainer* mdts(0);
+    const Muon::MdtPrepDataContainer* mdts = 0;
     CHECK(evtStore()->retrieve(mdts, "MDT_DriftCircles"));
 
-    Muon::MdtPrepDataContainer::const_iterator chamber;
-    for (chamber = mdts->begin(); chamber != mdts->end() ; ++chamber) {
+    for (auto chamber: *mdts) {
 
         int first = 1;
 
-        for (Muon::MdtPrepDataCollection::const_iterator tube = (*chamber)->begin(); tube != (*chamber)->end(); ++tube){
+        for (auto tube: *chamber) {
           
-            const MuonGM::MdtReadoutElement* readout = (*tube)->detectorElement();
+            const MuonGM::MdtReadoutElement* readout = tube->detectorElement();
                 
-            const Amg::Vector3D&    global_position  = (*tube)->globalPosition();
+            const Amg::Vector3D&    global_position  = tube->globalPosition();
             const Amg::Vector3D& ml_global_position  = readout->globalPosition();
             
             if (first){
@@ -876,7 +898,7 @@ StatusCode BaseAnalysis::fill_mdt() {
                 first = 0;
             }
 
-            tubeid = (*tube)->identify();
+            tubeid = tube->identify();
             if (ignore_mdt_tube(mdt_chamber_name.back(),
                                 m_mdtIdHelper->multilayer(tubeid),
                                 m_mdtIdHelper->tubeLayer(tubeid),
@@ -888,10 +910,13 @@ StatusCode BaseAnalysis::fill_mdt() {
 
             mdt_chamber_tube_n.back()++;
             mdt_chamber_tube_r.back().push_back((int)(r(tube_x, tube_y)));
-            mdt_chamber_tube_adc.back().push_back((*tube)->adc());
+            mdt_chamber_tube_adc.back().push_back(tube->adc());
             mdt_chamber_tube_id.back().push_back(m_mdtIdHelper->multilayer(tubeid)*1000 + 
                                                  m_mdtIdHelper->tubeLayer(tubeid)*100   + 
                                                  m_mdtIdHelper->tube(tubeid));
+
+            if (tube->adc() > 50)
+                mdt_chamber_tube_n_adc50.back()++;
 
             // std::cout << mdt_chamber_name.back()            << " "
             //           << mdt_chamber_type.back()            << " "
@@ -901,8 +926,8 @@ StatusCode BaseAnalysis::fill_mdt() {
             //           << m_mdtIdHelper->multilayer(tubeid)  << " "
             //           << m_mdtIdHelper->tubeLayer(tubeid)   << " "
             //           << m_mdtIdHelper->tube(tubeid)        << " "
-            //           << (*tube)->adc()                     << " "
-            //           << (*tube)->tdc()                     << "          "
+            //           << tube->adc()                     << " "
+            //           << tube->tdc()                     << "          "
             //           << tubeid                             << " "
             //           << std::endl;
             
@@ -911,9 +936,6 @@ StatusCode BaseAnalysis::fill_mdt() {
             //  Y = tubelayer
             // ZZ = tube
 
-            if ((*tube)->adc() > 50)
-                mdt_chamber_tube_n_adc50.back()++;
-            
         }
     }
 
@@ -934,6 +956,7 @@ StatusCode BaseAnalysis::fill_csc() {
     int qright       = 0;
     int qmax         = 0;
     int rmax         = 0;
+    int on_segment   = 0;
 
     std::string _type = "";
     int _eta = 0;
@@ -947,23 +970,25 @@ StatusCode BaseAnalysis::fill_csc() {
     ICscClusterFitter::StripFitList stripfits;
     std::vector<Identifier>         stripids;
 
-    const Muon::CscPrepDataContainer* cscs(0);
+    const Muon::CscPrepDataContainer* cscs = 0;
     CHECK(evtStore()->retrieve(cscs, "CSC_Clusters"));
 
-    Muon::CscPrepDataContainer::const_iterator chamber;
-    for (chamber = cscs->begin(); chamber != cscs->end(); ++chamber) {
+    const xAOD::MuonSegmentContainer* segments     = 0;
+    const Trk::SegmentCollection*     segments_trk = 0;
+    const Trk::Segment*               segment_trk  = 0;
+    CHECK(evtStore()->retrieve(segments,     "MuonSegments"));
+    CHECK(evtStore()->retrieve(segments_trk, "MuonSegments"));
+
+    for (auto chamber: *cscs) {
 
         int first = 1;
 
-        for (Muon::CscPrepDataCollection::const_iterator cluster = (*chamber)->begin(); cluster != (*chamber)->end(); ++cluster) {
+        for (auto cluster: *chamber) {
 
-            const MuonGM::CscReadoutElement* readout = (*cluster)->detectorElement();
-                
-            const Amg::Vector3D&    global_position = (*cluster)->globalPosition();
-            const Amg::Vector3D& ch_global_position = readout->globalPosition();
-
-            const Muon::CscPrepData& prd = **cluster;
-            Identifier clusterid = prd.identify();
+            Identifier clusterid                     = cluster->identify();
+            const MuonGM::CscReadoutElement* readout = cluster->detectorElement();
+            const Amg::Vector3D&    global_position  = cluster->globalPosition();
+            const Amg::Vector3D& ch_global_position  = readout->globalPosition();
 
             if (first){
 
@@ -992,6 +1017,7 @@ StatusCode BaseAnalysis::fill_csc() {
                 csc_chamber_cluster_qleft.push_back( std::vector<int>());
                 csc_chamber_cluster_qright.push_back(std::vector<int>());
                 csc_chamber_cluster_strips.push_back(std::vector<int>());
+                csc_chamber_cluster_segment.push_back(std::vector<int>());
                 csc_chamber_cluster_n_qmax100.push_back(0);
                 csc_chamber_cluster_n_notecho.push_back(0);
 
@@ -1010,15 +1036,15 @@ StatusCode BaseAnalysis::fill_csc() {
             
             csc_chamber_cluster_n.back()++;
             csc_chamber_cluster_r.back().push_back((int)(r(cluster_x, cluster_y)));
-            csc_chamber_cluster_qsum.back().push_back((*cluster)->charge());
-            csc_chamber_cluster_strips.back().push_back((*cluster)->rdoList().size());
+            csc_chamber_cluster_qsum.back().push_back(cluster->charge());
+            csc_chamber_cluster_strips.back().push_back(cluster->rdoList().size());
 
             // below: retrieving the highest-charge strip (qmax)
             stripfits.clear();
-            m_clusterUtilTool->getStripFits((*cluster), stripfits);
+            m_clusterUtilTool->getStripFits(cluster, stripfits);
 
             stripids.clear();
-            stripids = (*cluster)->rdoList();
+            stripids = cluster->rdoList();
 
             if (stripids.size() != stripfits.size()) 
                 ATH_MSG_FATAL("Number of strip ids is not equal to number of strip fits!");
@@ -1050,6 +1076,75 @@ StatusCode BaseAnalysis::fill_csc() {
             if (qleft > 0 && qright > 0)
                 csc_chamber_cluster_n_notecho.back()++;
 
+            // below: segment navigation
+            on_segment = 0;
+
+            for (auto segment: *segments) {
+
+                if (segment->chamberIndex() != Muon::MuonStationIndex::CSS && 
+                    segment->chamberIndex() != Muon::MuonStationIndex::CSL)
+                    continue;
+
+                // fuck EDMs
+                segment_trk = segments_trk->at(segment->muonSegment().index());
+
+                for (auto measurement: segment_trk->containedMeasurements()){
+                    if (clusterid == ((const Trk::RIO_OnTrack*)(measurement))->identify()){
+                        on_segment = 1;
+                        break;
+                    }
+                }
+            }
+            csc_chamber_cluster_segment.back().push_back(on_segment);
+        }
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+StatusCode BaseAnalysis::fill_csc_segments() {
+
+    int _eta = 0;
+    int _phi = 0;
+    std::string _type;
+    Identifier id;
+
+    const xAOD::MuonSegmentContainer* segments     = 0;
+    const Trk::SegmentCollection*     segments_trk = 0;
+    const Trk::Segment*               segment_trk  = 0;
+    CHECK(evtStore()->retrieve(segments,     "MuonSegments"));
+    CHECK(evtStore()->retrieve(segments_trk, "MuonSegments"));
+
+    for (auto segment: *segments) {
+
+        if (segment->chamberIndex() != Muon::MuonStationIndex::CSS && 
+            segment->chamberIndex() != Muon::MuonStationIndex::CSL)
+            continue;
+
+        _eta  = segment->etaIndex();
+        _phi  = segment->sector();
+        _type = segment->chamberIndex() == Muon::MuonStationIndex::CSS ? "CSS" : "CSL";
+
+        csc_segment_n++;
+        csc_segment_r.push_back((int)r(segment->x(), segment->y()));
+        csc_segment_phi.push_back( phi(segment->x(), segment->y()));
+        csc_segment_eta.push_back( eta(segment->x(), segment->y(), segment->z()));
+
+        csc_segment_name.push_back(OfflineToOnline(_type, _eta, _phi));
+        csc_segment_type.push_back(_type);
+        csc_segment_side.push_back(OfflineToOnlineSide(_eta));
+        csc_segment_phi_sector.push_back( OfflineToOnlinePhi(_type, _phi));
+
+        csc_segment_netaclusters.push_back(0);
+        csc_segment_nphiclusters.push_back(0);
+
+        segment_trk = segments_trk->at(segment->muonSegment().index());
+
+        for (auto measurement: segment_trk->containedMeasurements()){
+            id = ((const Trk::RIO_OnTrack*)(measurement))->identify();
+
+            if (m_cscIdHelper->measuresPhi(id)) csc_segment_nphiclusters.back()++;
+            else                                csc_segment_netaclusters.back()++;
         }
     }
 
