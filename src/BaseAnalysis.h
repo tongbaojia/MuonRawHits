@@ -138,6 +138,7 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
   std::vector<int>              mdt_chamber_tube_n_adc50; //!
   std::vector<std::vector<int>> mdt_chamber_tube_r; //!
   std::vector<std::vector<int>> mdt_chamber_tube_adc; //!
+  std::vector<std::vector<int>> mdt_chamber_tube_tdc; //!
   std::vector<std::vector<int>> mdt_chamber_tube_id; //!
 
   int csc_chamber_n;

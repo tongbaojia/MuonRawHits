@@ -138,6 +138,7 @@ StatusCode BaseAnalysis::initialize_branches() {
     tree->Branch("mdt_chamber_tube_n",       &mdt_chamber_tube_n);
     tree->Branch("mdt_chamber_tube_r",       &mdt_chamber_tube_r);
     tree->Branch("mdt_chamber_tube_adc",     &mdt_chamber_tube_adc);
+    tree->Branch("mdt_chamber_tube_tdc",     &mdt_chamber_tube_tdc);
     tree->Branch("mdt_chamber_tube_id",      &mdt_chamber_tube_id);
     tree->Branch("mdt_chamber_tube_n_adc50", &mdt_chamber_tube_n_adc50);
     
@@ -622,6 +623,7 @@ StatusCode BaseAnalysis::clear_branches() {
     mdt_chamber_tube_n_adc50.clear();
     mdt_chamber_tube_r.clear();
     mdt_chamber_tube_adc.clear();
+    mdt_chamber_tube_tdc.clear();
     mdt_chamber_tube_id.clear();
     
     csc_chamber_n = 0;
@@ -892,6 +894,7 @@ StatusCode BaseAnalysis::fill_mdt() {
                 mdt_chamber_tube_n.push_back(0);
                 mdt_chamber_tube_r.push_back(  std::vector<int>());
                 mdt_chamber_tube_adc.push_back(std::vector<int>());
+                mdt_chamber_tube_tdc.push_back(std::vector<int>());
                 mdt_chamber_tube_id.push_back(std::vector<int>());
                 mdt_chamber_tube_n_adc50.push_back(0);
 
@@ -911,6 +914,7 @@ StatusCode BaseAnalysis::fill_mdt() {
             mdt_chamber_tube_n.back()++;
             mdt_chamber_tube_r.back().push_back((int)(r(tube_x, tube_y)));
             mdt_chamber_tube_adc.back().push_back(tube->adc());
+            mdt_chamber_tube_tdc.back().push_back(tube->tdc());
             mdt_chamber_tube_id.back().push_back(m_mdtIdHelper->multilayer(tubeid)*1000 + 
                                                  m_mdtIdHelper->tubeLayer(tubeid)*100   + 
                                                  m_mdtIdHelper->tube(tubeid));
