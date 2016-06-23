@@ -7,38 +7,39 @@ public
 use  AtlasPolicy                AtlasPolicy-*
 
 private
-use  AthContainers              AthContainers-*                 Control
-use  AthLinks                   AthLinks-*                      Control
-use  AthenaBaseComps            AthenaBaseComps-*               Control
-use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
-use  AtlasROOT                  AtlasROOT-*                     External
-use  CscClusterization          CscClusterization-*             MuonSpectrometer/MuonReconstruction/MuonDataPrep
-use  GaudiInterface             GaudiInterface-*                External
-use  InDetIdentifier            InDetIdentifier-*               InnerDetector/InDetDetDescr
-use  InDetReadoutGeometry       InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
-use  Identifier                 Identifier-*                    DetectorDescription
-use  InDetIdentifier            InDetIdentifier-*               InnerDetector/InDetDetDescr
-use  LumiBlockComps             LumiBlockComps-*                LumiBlock
-use  MuonIdHelpers              MuonIdHelpers-*                 MuonSpectrometer
-use  MuonCombinedBaseTools      MuonCombinedBaseTools-*         Reconstruction/MuonIdentification
-use  MuonReadoutGeometry        MuonReadoutGeometry-*           MuonSpectrometer/MuonDetDescr
-use  MuonRecHelperTools         MuonRecHelperTools-*            MuonSpectrometer/MuonReconstruction/MuonRecTools
-use  MuonSegment                MuonSegment-*                   MuonSpectrometer/MuonReconstruction/MuonRecEvent
-use  MuonPrepRawData            MuonPrepRawData-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent
-use  TrkExInterfaces            TrkExInterfaces-*               Tracking/TrkExtrapolation
-use  TrkMeasurementBase         TrkMeasurementBase-*            Tracking/TrkEvent
-use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetDescr
-use  TrkSegment                 TrkSegment-*                    Tracking/TrkEvent
-use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
-use  muonEvent                  muonEvent-*                     Reconstruction/MuonIdentification
-use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
-use  xAODMuon                   xAODMuon-*                      Event/xAOD
-use  xAODParticleEvent          xAODParticleEvent-*             Event/xAOD
-use  xAODTracking               xAODTracking-*                  Event/xAOD
-use  xAODTrigger                xAODTrigger-*                   Event/xAOD
-use  TrigDecisionTool           TrigDecisionTool-*              Trigger/TrigAnalysis
-use  TrigConfxAOD               TrigConfxAOD-*                  Trigger/TrigConfiguration
-use  TrigDecisionInterface      TrigDecisionInterface-*         Trigger/TrigEvent
+use  AthContainers               AthContainers-*                 Control
+use  AthLinks                    AthLinks-*                      Control
+use  AthenaBaseComps             AthenaBaseComps-*               Control
+use  AtlasDetDescr               AtlasDetDescr-*                 DetectorDescription
+use  AtlasROOT                   AtlasROOT-*                     External
+use  CscClusterization           CscClusterization-*             MuonSpectrometer/MuonReconstruction/MuonDataPrep
+use  GaudiInterface              GaudiInterface-*                External
+use  InDetIdentifier             InDetIdentifier-*               InnerDetector/InDetDetDescr
+use  InDetReadoutGeometry        InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
+use  Identifier                  Identifier-*                    DetectorDescription
+use  InDetIdentifier             InDetIdentifier-*               InnerDetector/InDetDetDescr
+use  LumiBlockComps              LumiBlockComps-*                LumiBlock
+use  MuonIdHelpers               MuonIdHelpers-*                 MuonSpectrometer
+use  MuonCombinedBaseTools       MuonCombinedBaseTools-*         Reconstruction/MuonIdentification
+use  MuonReadoutGeometry         MuonReadoutGeometry-*           MuonSpectrometer/MuonDetDescr
+use  MuonRecHelperTools          MuonRecHelperTools-*            MuonSpectrometer/MuonReconstruction/MuonRecTools
+use  MuonSegment                 MuonSegment-*                   MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use  MuonPrepRawData             MuonPrepRawData-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use  TrkExInterfaces             TrkExInterfaces-*               Tracking/TrkExtrapolation
+use  TrkMeasurementBase          TrkMeasurementBase-*            Tracking/TrkEvent
+use  TrkSurfaces                 TrkSurfaces-*                   Tracking/TrkDetDescr
+use  TrkSegment                  TrkSegment-*                    Tracking/TrkEvent
+use  TrkTrack                    TrkTrack-*                      Tracking/TrkEvent
+use  TrkPseudoMeasurementOnTrack TrkPseudoMeasurementOnTrack-*   Tracking/TrkEvent
+use  muonEvent                   muonEvent-*                     Reconstruction/MuonIdentification
+use  xAODEventInfo               xAODEventInfo-*                 Event/xAOD
+use  xAODMuon                    xAODMuon-*                      Event/xAOD
+use  xAODParticleEvent           xAODParticleEvent-*             Event/xAOD
+use  xAODTracking                xAODTracking-*                  Event/xAOD
+use  xAODTrigger                 xAODTrigger-*                   Event/xAOD
+use  TrigDecisionTool            TrigDecisionTool-*              Trigger/TrigAnalysis
+use  TrigConfxAOD                TrigConfxAOD-*                  Trigger/TrigConfiguration
+use  TrigDecisionInterface       TrigDecisionInterface-*         Trigger/TrigEvent
 
 end_private
 
