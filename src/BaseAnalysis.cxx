@@ -90,8 +90,8 @@ StatusCode BaseAnalysis::execute() {
 
     CHECK(fill_eventinfo());
 
-    // if ((!m_trigDecTool->isPassed("HLT_noalg_zb_L1ZB")) && (!isMC))
-    //     return StatusCode::SUCCESS;
+    if ((!m_trigDecTool->isPassed("HLT_noalg_zb_L1ZB")) && (!isMC))
+        return StatusCode::SUCCESS;
 
     CHECK(clear_branches());
 
