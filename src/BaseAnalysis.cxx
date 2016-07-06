@@ -1187,9 +1187,6 @@ StatusCode BaseAnalysis::fill_cb_muons() {
     const xAOD::MuonContainer* muons = 0;
     CHECK(evtStore()->retrieve(muons, "Muons"));
 
-    std::cout << std::endl;
-    std::cout << muons << std::endl;
-
     for (auto muon: *muons) {
 
         if (!muon->primaryTrackParticle())                                 continue;
@@ -1206,12 +1203,10 @@ StatusCode BaseAnalysis::fill_cb_muons() {
         mu_hit_tech   .push_back(std::vector<std::string>());
         mu_hit_chamber.push_back(std::vector<std::string>());
 
-        std::cout << muon->primaryTrackParticle()                                 << std::endl;
-        std::cout << muon->primaryTrackParticle()->track()                        << std::endl;
-        std::cout << muon->primaryTrackParticle()->track()->measurementsOnTrack() << std::endl;
-
         for (auto measurement: *(muon->primaryTrackParticle()->track()->measurementsOnTrack())){
 
+            // pseudomeasurements: not what we want
+            // todo: wtf is a pseudomeasurements
             if (!measurement)                                                     continue;
             if (!dynamic_cast<const Trk::RIO_OnTrack*>(measurement))              continue;
             if ( dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(measurement)) continue;
@@ -1224,7 +1219,7 @@ StatusCode BaseAnalysis::fill_cb_muons() {
                 name = OfflineToOnline(m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id)),
                                        m_mdtIdHelper->stationEta(id),
                                        m_mdtIdHelper->stationPhi(id));
-                std::cout << name << std::endl;
+                // std::cout << name << std::endl;
             }
 
             if (m_cscIdHelper->is_csc(id)){}
