@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <string>
+#include <typeinfo>
 
 #include "Identifier/Identifier.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
@@ -37,6 +38,10 @@
 #include "CscClusterization/ICscClusterUtilTool.h"
 
 #include "TrkSegment/SegmentCollection.h"
+#include "TrkTrack/TrackCollection.h"
+#include "TrkTrack/Track.h"
+#include "TrkMeasurementBase/MeasurementBase.h"
+#include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 
 #include "TrigDecisionTool/ChainGroup.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -64,10 +69,10 @@ StatusCode BaseAnalysis::initialize() {
     CHECK(detectorStoreSvc.retrieve());
     CHECK(detectorStoreSvc->retrieve(m_detMgr, "Muon"));
 
-    m_mdtIdHelper = m_detMgr->mdtIdHelper();
-    m_cscIdHelper = m_detMgr->cscIdHelper();
-    m_rpcIdHelper = m_detMgr->rpcIdHelper();
-    m_tgcIdHelper = m_detMgr->tgcIdHelper();
+    m_mdtIdHelper  = m_detMgr->mdtIdHelper();
+    m_cscIdHelper  = m_detMgr->cscIdHelper();
+    m_rpcIdHelper  = m_detMgr->rpcIdHelper();
+    m_tgcIdHelper  = m_detMgr->tgcIdHelper();
 
     CHECK(histSvc.retrieve());
     CHECK(m_lumiTool.retrieve());
@@ -95,6 +100,7 @@ StatusCode BaseAnalysis::execute() {
         CHECK(fill_mdt());
         CHECK(fill_csc());
         CHECK(fill_csc_segments());
+        CHECK(fill_cb_muons());
 
         tree->Fill();
     }
@@ -138,6 +144,7 @@ StatusCode BaseAnalysis::initialize_branches() {
     tree->Branch("mdt_chamber_tube_n",       &mdt_chamber_tube_n);
     tree->Branch("mdt_chamber_tube_r",       &mdt_chamber_tube_r);
     tree->Branch("mdt_chamber_tube_adc",     &mdt_chamber_tube_adc);
+    tree->Branch("mdt_chamber_tube_tdc",     &mdt_chamber_tube_tdc);
     tree->Branch("mdt_chamber_tube_id",      &mdt_chamber_tube_id);
     tree->Branch("mdt_chamber_tube_n_adc50", &mdt_chamber_tube_n_adc50);
     
@@ -169,6 +176,15 @@ StatusCode BaseAnalysis::initialize_branches() {
     tree->Branch("csc_segment_phi_sector",   &csc_segment_phi_sector);
     tree->Branch("csc_segment_nphiclusters", &csc_segment_nphiclusters);
     tree->Branch("csc_segment_netaclusters", &csc_segment_netaclusters);
+
+    tree->Branch("mu_n",           &mu_n);
+    tree->Branch("mu_pt",          &mu_pt);
+    tree->Branch("mu_eta",         &mu_eta);
+    tree->Branch("mu_phi",         &mu_phi);
+    tree->Branch("mu_m",           &mu_m);
+    tree->Branch("mu_hit_n",       &mu_hit_n);
+    tree->Branch("mu_hit_tech",    &mu_hit_tech);
+    tree->Branch("mu_hit_chamber", &mu_hit_chamber);
 
     return StatusCode::SUCCESS;
 }
@@ -622,6 +638,7 @@ StatusCode BaseAnalysis::clear_branches() {
     mdt_chamber_tube_n_adc50.clear();
     mdt_chamber_tube_r.clear();
     mdt_chamber_tube_adc.clear();
+    mdt_chamber_tube_tdc.clear();
     mdt_chamber_tube_id.clear();
     
     csc_chamber_n = 0;
@@ -655,6 +672,15 @@ StatusCode BaseAnalysis::clear_branches() {
     csc_segment_type.clear();
     csc_segment_side.clear();
     csc_segment_phi_sector.clear();
+
+    mu_n = 0;
+    mu_pt         .clear();
+    mu_eta        .clear();
+    mu_phi        .clear();
+    mu_m          .clear();
+    mu_hit_n      .clear();
+    mu_hit_tech   .clear();
+    mu_hit_chamber.clear();
 
     return StatusCode::SUCCESS;
 }
@@ -892,6 +918,7 @@ StatusCode BaseAnalysis::fill_mdt() {
                 mdt_chamber_tube_n.push_back(0);
                 mdt_chamber_tube_r.push_back(  std::vector<int>());
                 mdt_chamber_tube_adc.push_back(std::vector<int>());
+                mdt_chamber_tube_tdc.push_back(std::vector<int>());
                 mdt_chamber_tube_id.push_back(std::vector<int>());
                 mdt_chamber_tube_n_adc50.push_back(0);
 
@@ -911,6 +938,7 @@ StatusCode BaseAnalysis::fill_mdt() {
             mdt_chamber_tube_n.back()++;
             mdt_chamber_tube_r.back().push_back((int)(r(tube_x, tube_y)));
             mdt_chamber_tube_adc.back().push_back(tube->adc());
+            mdt_chamber_tube_tdc.back().push_back(tube->tdc());
             mdt_chamber_tube_id.back().push_back(m_mdtIdHelper->multilayer(tubeid)*1000 + 
                                                  m_mdtIdHelper->tubeLayer(tubeid)*100   + 
                                                  m_mdtIdHelper->tube(tubeid));
@@ -1145,6 +1173,65 @@ StatusCode BaseAnalysis::fill_csc_segments() {
 
             if (m_cscIdHelper->measuresPhi(id)) csc_segment_nphiclusters.back()++;
             else                                csc_segment_netaclusters.back()++;
+        }
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+StatusCode BaseAnalysis::fill_cb_muons() {
+
+    Identifier id;
+    std::string name = "";
+
+    const xAOD::MuonContainer* muons = 0;
+    CHECK(evtStore()->retrieve(muons, "Muons"));
+
+    for (auto muon: *muons) {
+
+        if (!muon->primaryTrackParticle())                                 continue;
+        if (!muon->primaryTrackParticle()->track())                        continue;
+        if (!muon->primaryTrackParticle()->track()->measurementsOnTrack()) continue;
+
+        mu_n++;
+        mu_pt .push_back(muon->pt());
+        mu_eta.push_back(muon->eta());
+        mu_phi.push_back(muon->phi());
+        mu_m  .push_back(muon->m());
+
+        mu_hit_n.push_back(0);
+        mu_hit_tech   .push_back(std::vector<std::string>());
+        mu_hit_chamber.push_back(std::vector<std::string>());
+
+        for (auto measurement: *(muon->primaryTrackParticle()->track()->measurementsOnTrack())){
+
+            // pseudomeasurements: not what we want
+            // todo: wtf is a pseudomeasurements
+            if (!measurement)                                                     continue;
+            if (!dynamic_cast<const Trk::RIO_OnTrack*>(measurement))              continue;
+            if ( dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(measurement)) continue;
+
+            id   = ((const Trk::RIO_OnTrack*)(measurement))->identify();
+            name = "";
+
+            if (m_mdtIdHelper->is_mdt(id)) {
+                
+                name = OfflineToOnline(m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id)),
+                                       m_mdtIdHelper->stationEta(id),
+                                       m_mdtIdHelper->stationPhi(id));
+                // std::cout << name << std::endl;
+            }
+
+            if (m_cscIdHelper->is_csc(id)){}
+
+            if (m_rpcIdHelper->is_rpc(id)){}
+
+            if (m_tgcIdHelper->is_tgc(id)){}
+
+            mu_hit_n.back()++;
+            mu_hit_tech.back()   .push_back(m_mdtIdHelper->technologyString(m_mdtIdHelper->technology(id)));
+            mu_hit_chamber.back().push_back(name);
+
         }
     }
 

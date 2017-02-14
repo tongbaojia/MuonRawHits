@@ -64,6 +64,7 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
   virtual StatusCode fill_mdt();
   virtual StatusCode fill_csc();
   virtual StatusCode fill_csc_segments();
+  virtual StatusCode fill_cb_muons();
 
   virtual StatusCode dump_mdt_geometry();
   virtual StatusCode dump_csc_geometry();
@@ -138,6 +139,7 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
   std::vector<int>              mdt_chamber_tube_n_adc50; //!
   std::vector<std::vector<int>> mdt_chamber_tube_r; //!
   std::vector<std::vector<int>> mdt_chamber_tube_adc; //!
+  std::vector<std::vector<int>> mdt_chamber_tube_tdc; //!
   std::vector<std::vector<int>> mdt_chamber_tube_id; //!
 
   int csc_chamber_n;
@@ -174,6 +176,15 @@ class BaseAnalysis: public ::AthHistogramAlgorithm {
   std::vector<std::string> csc_segment_type; //!
   std::vector<std::string> csc_segment_side; //!
   std::vector<int>         csc_segment_phi_sector; //!
+
+  int mu_n;
+  std::vector<double> mu_pt; //!
+  std::vector<double> mu_eta; //!
+  std::vector<double> mu_phi; //!
+  std::vector<double> mu_m; //!
+  std::vector<int>    mu_hit_n; //!
+  std::vector<std::vector<std::string>> mu_hit_tech; //!
+  std::vector<std::vector<std::string>> mu_hit_chamber; //!
 
 };
 
